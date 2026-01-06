@@ -5,6 +5,8 @@ __pycache__/
 .idea/
 .vscode/
 
+.gradle/
+/build
 
 # Created by https://www.toptal.com/developers/gitignore/api/kotlin,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,intellij
