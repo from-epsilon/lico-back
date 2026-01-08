@@ -1,6 +1,8 @@
 spring:
   application:
     name: nagginggnome
+  profiles:
+    include: {$SPRING_PROFILES_ACTIVE}
 
   datasource:
     url: ${DB_URL}
