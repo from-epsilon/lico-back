@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
- * 모든 @RestController 엔드포인트 경로 앞에 프리픽스를 자동으로 붙이는 설정 클래스입니다.
+ * 모든 @RestController 엔드포인트 경로 앞에 프리픽스를 자동으로 붙이는 설정 클래스
  */
 @Configuration
 class ApiVersionPrefixConfig : WebMvcConfigurer {
