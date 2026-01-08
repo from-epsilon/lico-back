@@ -14,7 +14,7 @@ class ApiVersionPrefixConfig : WebMvcConfigurer {
 
     override fun configurePathMatch(configurer: PathMatchConfigurer) {
         configurer.addPathPrefix(
-            "/v1",
+            ApiPrefixes.VERSION,
             HandlerTypePredicate.forAnnotation(RestController::class.java)
         )
     }
