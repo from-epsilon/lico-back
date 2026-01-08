@@ -1,9 +1,6 @@
 spring:
   application:
     name: nagginggnome
-  mvc:
-    servlet:
-      path: /api
   profiles:
     include: { $SPRING_PROFILES_ACTIVE }
 
