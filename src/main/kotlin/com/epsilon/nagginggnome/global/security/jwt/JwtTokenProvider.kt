@@ -10,7 +10,7 @@ import java.util.*
 import javax.crypto.SecretKey
 
 /**
- * JWT 생성 및 검증을 담당하는 컴포넌트
+ * JWT 생성을 담당하는 컴포넌트
  */
 @Component
 class JwtTokenProvider(

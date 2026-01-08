@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.SecretKey
 
+/**
+ * JWT 검증/추출을 담당하는 컴포넌트
+ */
 @Component
 class JwtUtils(
     private val props: JwtProperties
