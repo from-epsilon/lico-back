@@ -1,6 +1,9 @@
 spring:
   application:
     name: nagginggnome
+  mvc:
+    servlet:
+      path: /api
 
   datasource:
     url: ${DB_URL}
@@ -13,3 +16,4 @@ jwt:
   access-token-exp: ${ACCESS_TOKEN_EXP:3600}
   refresh-token-exp: ${REFRESH_TOKEN_EXP:1209600}
   issuer: ${JWT_ISSUER:nagginggnome}
+
