@@ -11,7 +11,7 @@ enum class CommonErrorCode(
     /**
      * 요청 값이 유효하지 않거나 요청 형식이 올바르지 않은 경우
      */
-    INVALID_REQUEST("COMMON_400", HttpStatus.BAD_REQUEST, "Bad Request"),
+    BAD_REQUEST("COMMON_400", HttpStatus.BAD_REQUEST, "Bad Request"),
 
     /**
      * 인증에 실패한 경우

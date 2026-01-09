@@ -74,11 +74,11 @@ class GlobalExceptionHandler {
         )
 
         val body = ApiResponse.fail(
-            errorCode = CommonErrorCode.INVALID_REQUEST,
+            errorCode = CommonErrorCode.BAD_REQUEST,
             message = message
         )
 
-        return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST.status).body(body)
+        return ResponseEntity.status(CommonErrorCode.BAD_REQUEST.status).body(body)
     }
 
     @ExceptionHandler(Exception::class)
