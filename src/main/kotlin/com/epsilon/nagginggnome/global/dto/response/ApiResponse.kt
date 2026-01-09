@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.global.dto.response
 
-import com.epsilon.nagginggnome.global.code.ErrorCode
-import com.epsilon.nagginggnome.global.code.SuccessCode
+import com.epsilon.nagginggnome.global.constant.code.ErrorCode
+import com.epsilon.nagginggnome.global.constant.code.SuccessCode
 import java.time.Instant
 
 /**
@@ -38,12 +38,12 @@ data class ApiResponse<T>(
         fun ok(
             successCode: SuccessCode,
             message: String = successCode.message
-        ): ApiResponse<Unit> {
+        ): ApiResponse<Nothing> {
             return ApiResponse(
                 success = true,
                 code = successCode.code,
                 message = message,
-                data = Unit
+                data = null
             )
         }
 

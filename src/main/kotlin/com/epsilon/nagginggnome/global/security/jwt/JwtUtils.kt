@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.global.security.jwt
 
 import com.epsilon.nagginggnome.domain.user.constant.Role
-import com.epsilon.nagginggnome.global.code.JwtErrorCode
+import com.epsilon.nagginggnome.global.constant.code.JwtErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
