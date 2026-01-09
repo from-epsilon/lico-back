@@ -64,6 +64,4 @@ class UserSocialAccount() : BaseEntity() {
      */
     @Column(name = "email_at_provider", nullable = true)
     var emailAtProvider: String? = null
-
-
 }
