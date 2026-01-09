@@ -6,6 +6,7 @@ object JwtConstants {
 
     const val CLAIM_ROLE: String = "role"
     const val CLAIM_TYPE: String = "type"
+    const val CLAIM_EMAIL: String = "email"
 
     const val TOKEN_TYPE_ACCESS: String = "access"
     const val TOKEN_TYPE_REFRESH: String = "refresh"

@@ -1,6 +1,6 @@
 package com.epsilon.nagginggnome.global.exception
 
-import com.epsilon.nagginggnome.global.code.ErrorCode
+import com.epsilon.nagginggnome.global.constant.code.ErrorCode
 
 /**
  * 애플리케이션 표준 예외
