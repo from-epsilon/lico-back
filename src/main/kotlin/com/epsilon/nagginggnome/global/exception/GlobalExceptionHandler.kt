@@ -94,10 +94,10 @@ class GlobalExceptionHandler {
         )
 
         val body = ApiResponse.fail(
-            errorCode = CommonErrorCode.INTERNAL_ERROR,
-            message = CommonErrorCode.INTERNAL_ERROR.message
+            errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR,
+            message = CommonErrorCode.INTERNAL_SERVER_ERROR.message
         )
 
-        return ResponseEntity.status(CommonErrorCode.INTERNAL_ERROR.status).body(body)
+        return ResponseEntity.status(CommonErrorCode.INTERNAL_SERVER_ERROR.status).body(body)
     }
 }

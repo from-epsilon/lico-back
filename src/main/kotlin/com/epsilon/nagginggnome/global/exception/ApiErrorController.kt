@@ -34,7 +34,7 @@ class ApiErrorController: ErrorController {
             HttpStatus.UNAUTHORIZED.value() -> CommonErrorCode.UNAUTHORIZED
             HttpStatus.FORBIDDEN.value() -> CommonErrorCode.FORBIDDEN
             HttpStatus.NOT_FOUND.value() -> CommonErrorCode.NOT_FOUND
-            else -> CommonErrorCode.INTERNAL_ERROR
+            else -> CommonErrorCode.INTERNAL_SERVER_ERROR
         }
 
         return ResponseEntity.status(statusCode).body(ApiResponse.fail(errorCode))

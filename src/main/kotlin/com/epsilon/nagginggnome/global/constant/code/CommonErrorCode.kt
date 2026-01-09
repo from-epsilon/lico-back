@@ -31,5 +31,5 @@ enum class CommonErrorCode(
     /**
      * 서버 내부 처리 중 예기치 못한 오류가 발생한 경우
      */
-    INTERNAL_ERROR("COMMON_500", HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
+    INTERNAL_SERVER_ERROR("COMMON_500", HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
 }
