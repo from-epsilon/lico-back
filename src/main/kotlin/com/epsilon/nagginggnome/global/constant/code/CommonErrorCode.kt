@@ -29,6 +29,11 @@ enum class CommonErrorCode(
     NOT_FOUND("COMMON_404", HttpStatus.NOT_FOUND, "Not Found"),
 
     /**
+     * 동일 리소스가 이미 존재하여 요청을 처리할 수 없는 경우
+     */
+    CONFLICT("COMMON_409", HttpStatus.CONFLICT, "Conflict"),
+
+    /**
      * 서버 내부 처리 중 예기치 못한 오류가 발생한 경우
      */
     INTERNAL_SERVER_ERROR("COMMON_500", HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error")
