@@ -1,4 +1,4 @@
-package com.epsilon.nagginggnome.global.code
+package com.epsilon.nagginggnome.global.constant.code
 
 /**
  * 성공 코드 규격

@@ -1,5 +1,8 @@
 package com.epsilon.nagginggnome.domain.user.constant
 
+/**
+ * 사용자 권한
+ */
 enum class Role {
     USER,
     ADMIN,

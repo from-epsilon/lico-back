@@ -1,4 +1,4 @@
-package com.epsilon.nagginggnome.global.code
+package com.epsilon.nagginggnome.global.constant.code
 
 enum class CommonSuccessCode(
     override val code: String,

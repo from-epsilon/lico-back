@@ -1,9 +1,10 @@
 spring:
   application:
     name: nagginggnome
-  mvc:
-    servlet:
-      path: /api
+  profiles:
+    include: { $SPRING_PROFILES_ACTIVE }
+  jackson:
+    default-property-inclusion: NON_NULL
 
   datasource:
     url: ${DB_URL}
@@ -17,3 +18,6 @@ jwt:
   refresh-token-exp: ${REFRESH_TOKEN_EXP:1209600}
   issuer: ${JWT_ISSUER:nagginggnome}
 
+social:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
