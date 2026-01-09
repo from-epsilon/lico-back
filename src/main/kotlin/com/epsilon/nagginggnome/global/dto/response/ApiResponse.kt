@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.global.dto.response
 
-import com.epsilon.nagginggnome.global.code.ErrorCode
-import com.epsilon.nagginggnome.global.code.SuccessCode
+import com.epsilon.nagginggnome.global.constant.code.ErrorCode
+import com.epsilon.nagginggnome.global.constant.code.SuccessCode
 import java.time.Instant
 
 /**

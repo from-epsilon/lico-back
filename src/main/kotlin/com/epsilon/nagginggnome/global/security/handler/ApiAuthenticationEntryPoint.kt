@@ -1,6 +1,6 @@
 package com.epsilon.nagginggnome.global.security.handler
 
-import com.epsilon.nagginggnome.global.code.CommonErrorCode
+import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
 import com.epsilon.nagginggnome.global.dto.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
