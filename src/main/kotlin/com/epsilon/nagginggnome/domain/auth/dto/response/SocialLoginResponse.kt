@@ -13,5 +13,10 @@ data class SocialLoginResponse(
     /**
      * Refresh Token(JWT)
      */
-    val refreshToken: String
+    val refreshToken: String,
+
+    /**
+     * 신규 유저 확인
+     */
+    val isNewUser: Boolean
 )
