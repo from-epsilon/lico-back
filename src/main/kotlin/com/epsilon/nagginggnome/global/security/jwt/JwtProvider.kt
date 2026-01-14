@@ -38,7 +38,9 @@ class JwtProvider(
             .signWith(key)
             .compact()
 
-        return JwtIssueResult(token, exp)
+        return JwtIssueResult(
+            token = token,
+            expiresAt = exp)
     }
 
     /**
@@ -59,6 +61,8 @@ class JwtProvider(
             .signWith(key)
             .compact()
 
-        return JwtIssueResult(token, exp)
+        return JwtIssueResult(
+            token = token,
+            expiresAt = exp)
     }
 }
