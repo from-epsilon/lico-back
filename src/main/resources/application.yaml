@@ -26,3 +26,7 @@ jwt:
 social:
   google:
     client-id: ${GOOGLE_CLIENT_ID}
+
+security:
+  token-hash:
+    pepper: ${TOKEN_HASH_PEPPER}
