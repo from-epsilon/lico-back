@@ -13,7 +13,7 @@ import javax.crypto.SecretKey
  * JWT 생성을 담당하는 컴포넌트
  */
 @Component
-class JwtTokenProvider(
+class JwtProvider(
     private val props: JwtProperties
 ) {
     private val key: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(props.secret))

@@ -11,7 +11,7 @@ import com.epsilon.nagginggnome.domain.user.repository.UserSocialAccountReposito
 import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.jwt.JwtConstants
-import com.epsilon.nagginggnome.global.security.jwt.JwtTokenProvider
+import com.epsilon.nagginggnome.global.security.jwt.JwtProvider
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,7 +22,7 @@ class GoogleAuthService(
     private val userRepository: UserRepository,
     private val userSocialAccountRepository: UserSocialAccountRepository,
     private val googleIdTokenVerifier: GoogleIdTokenVerifier,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtProvider: JwtProvider
 ) {
 
     /**
@@ -109,8 +109,8 @@ class GoogleAuthService(
         val userId = user.id ?: throw ApiException(CommonErrorCode.INTERNAL_SERVER_ERROR)
 
         // AccessToken, RefreshToken 발급
-        val accessToken = jwtTokenProvider.generateAccessToken(userId, user.role)
-        val refreshToken = jwtTokenProvider.generateRefreshToken(userId)
+        val accessToken = jwtProvider.generateAccessToken(userId, user.role)
+        val refreshToken = jwtProvider.generateRefreshToken(userId)
 
         return SocialLoginResponse(
             accessToken = accessToken,
