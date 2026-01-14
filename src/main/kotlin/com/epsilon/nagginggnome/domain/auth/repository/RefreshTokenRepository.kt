@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.auth.repository
 
-import java.time.Duration
-import java.util.UUID
+import java.time.Instant
+import java.util.*
 
 /**
  * Refresh Token 저장소 인터페이스
@@ -14,7 +14,7 @@ interface RefreshTokenRepository {
     fun save(
         userId: UUID,
         refreshTokenHash: String,
-        ttl: Duration
+        expiresAt: Instant
     )
 
     /**
