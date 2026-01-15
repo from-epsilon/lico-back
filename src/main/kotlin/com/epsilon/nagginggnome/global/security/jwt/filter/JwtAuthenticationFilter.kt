@@ -50,15 +50,4 @@ class JwtAuthenticationFilter(
 
         filterChain.doFilter(request, response)
     }
-
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return super.shouldNotFilter(request)
-    }
-
-    private fun extractTokenFromRequest(request: HttpServletRequest): String? =
-        request.getHeader(JwtConstants.AUTHORIZATION_HEADER)
-            ?.takeIf { it.startsWith(JwtConstants.BEARER_PREFIX) }
-            ?.substring(JwtConstants.BEARER_PREFIX.length)
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
 }
