@@ -30,12 +30,18 @@ import java.util.*
         Index(name = "idx_social_user_id", columnList = "user_id")
     ]
 )
-class UserSocialAccount() : BaseEntity() {
+class UserSocialAccount(
+    user: User,
+    provider: SocialProvider,
+    providerUserId: String,
+    emailAtProvider: String? = null
+) : BaseEntity() {
 
     @Id
     @UuidGenerator
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
     var id: UUID? = null
+        private set
 
     // Lazy로 두어 인증 처리에서 불필요한 User 로딩을 피함
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,24 +50,28 @@ class UserSocialAccount() : BaseEntity() {
         nullable = false,
         foreignKey = ForeignKey(name = "fk_social_user")
     )
-    lateinit var user: User
+    var user: User = user
+        private set
 
     /**
      * 소셜 제공자(GOOGLE, APPLE)
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "provider", nullable = false)
-    lateinit var provider: SocialProvider
+    var provider: SocialProvider = provider
+        private set
 
     /**
      * 제공자 내부 사용자 식별자(sub)
      */
     @Column(name = "provider_user_id", nullable = false)
-    lateinit var providerUserId: String
+    var providerUserId: String = providerUserId
+        private set
 
     /**
      * provider에서 받은 이메일 원본
      */
-    @Column(name = "email_at_provider", nullable = true)
-    var emailAtProvider: String? = null
+    @Column(name = "email_at_provider")
+    var emailAtProvider: String? = emailAtProvider
+        private set
 }
