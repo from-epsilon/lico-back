@@ -1,6 +1,9 @@
 package com.epsilon.nagginggnome.global.security.jwt.filter
 
 import com.epsilon.nagginggnome.domain.user.constant.Role
+import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
+import com.epsilon.nagginggnome.global.constant.code.JwtErrorCode
+import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.jwt.JwtConstants
 import com.epsilon.nagginggnome.global.security.jwt.JwtUtils
 import io.jsonwebtoken.Claims
@@ -38,6 +41,10 @@ class JwtAuthenticationFilter(
         val token: String = jwtUtils.extractToken(header)
         val claims: Claims = jwtUtils.extractClaims(token)
 
+        if(!jwtUtils.isAccessToken(claims)){
+            throw ApiException(JwtErrorCode.INVALID_TOKEN_TYPE)
+        }
+
         val subject: UUID = jwtUtils.extractSubject(claims)
         val role: Role = jwtUtils.extractRole(claims)
 
@@ -50,15 +57,4 @@ class JwtAuthenticationFilter(
 
         filterChain.doFilter(request, response)
     }
-
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return super.shouldNotFilter(request)
-    }
-
-    private fun extractTokenFromRequest(request: HttpServletRequest): String? =
-        request.getHeader(JwtConstants.AUTHORIZATION_HEADER)
-            ?.takeIf { it.startsWith(JwtConstants.BEARER_PREFIX) }
-            ?.substring(JwtConstants.BEARER_PREFIX.length)
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
 }

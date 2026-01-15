@@ -7,6 +7,17 @@ enum class SecurityPaths(
     private val rawPattern: String,
     private val permitAll: Boolean
 ) {
+
+    /**
+     * 로그아웃 API
+     */
+    AUTH_LOGOUT("/v1/auth/logout", true),
+    
+    /**
+     * 토큰 재발급 API
+     */
+    AUTH_TOKEN_REISSUE("/v1/auth/token/reissue", true),
+
     /**
      * 소셜 인증 API
      */

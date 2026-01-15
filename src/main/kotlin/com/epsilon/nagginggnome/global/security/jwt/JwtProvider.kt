@@ -13,7 +13,7 @@ import javax.crypto.SecretKey
  * JWT 생성을 담당하는 컴포넌트
  */
 @Component
-class JwtTokenProvider(
+class JwtProvider(
     private val props: JwtProperties
 ) {
     private val key: SecretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(props.secret))
@@ -23,12 +23,12 @@ class JwtTokenProvider(
      */
     fun generateAccessToken(
         userId: UUID,
-        role: Role
-    ): String {
-        val now = Instant.now()
+        role: Role,
+        now: Instant = Instant.now()
+    ): JwtIssueResult {
         val exp = now.plusSeconds(props.accessTokenExp)
 
-        return Jwts.builder()
+        val token = Jwts.builder()
             .issuer(props.issuer)
             .subject(userId.toString())
             .issuedAt(Date.from(now))
@@ -37,18 +37,22 @@ class JwtTokenProvider(
             .claim(JwtConstants.CLAIM_TYPE, JwtConstants.TOKEN_TYPE_ACCESS)
             .signWith(key)
             .compact()
+
+        return JwtIssueResult(
+            token = token,
+            expiresAt = exp)
     }
 
     /**
      * Refresh Token 생성
      */
     fun generateRefreshToken(
-        userId: UUID
-    ): String {
-        val now = Instant.now()
+        userId: UUID,
+        now: Instant = Instant.now()
+    ): JwtIssueResult {
         val exp = now.plusSeconds(props.refreshTokenExp)
 
-        return Jwts.builder()
+        val token = Jwts.builder()
             .issuer(props.issuer)
             .subject(userId.toString())
             .issuedAt(Date.from(now))
@@ -56,5 +60,9 @@ class JwtTokenProvider(
             .claim(JwtConstants.CLAIM_TYPE, JwtConstants.TOKEN_TYPE_REFRESH)
             .signWith(key)
             .compact()
+
+        return JwtIssueResult(
+            token = token,
+            expiresAt = exp)
     }
 }

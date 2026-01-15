@@ -66,6 +66,15 @@ enum class JwtErrorCode(
     ),
 
     /**
+     * 사용자 식별이 불가능한 경우
+     */
+    INVALID_TOKEN_SUBJECT(
+        code = "JWT_401_INVALID_TOKEN_SUBJECT",
+        status = HttpStatus.UNAUTHORIZED,
+        message = "Invalid refresh token subject."
+    ),
+
+    /**
      * 서버 저장소에 Refresh Token이 존재하지 않는 경우
      */
     REFRESH_TOKEN_NOT_FOUND(

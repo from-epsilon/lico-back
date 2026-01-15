@@ -91,4 +91,10 @@ class JwtUtils(
      */
     fun isAccessToken(claims: Claims): Boolean =
         (claims[JwtConstants.CLAIM_TYPE] as? String) == JwtConstants.TOKEN_TYPE_ACCESS
+
+    /**
+     * 주어진 Claims가 Refresh Token인지 확인
+     */
+    fun isRefreshToken(claims: Claims): Boolean =
+        (claims[JwtConstants.CLAIM_TYPE] as? String) == JwtConstants.TOKEN_TYPE_REFRESH
 }
