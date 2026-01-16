@@ -30,7 +30,7 @@ enum class JwtErrorCode(
     ),
 
     /**
-     * Token이 만료된 경우입니다.
+     * Token이 만료된 경우
      */
     EXPIRED_TOKEN(
         code = "JWT_401_EXPIRED_TOKEN",
@@ -39,7 +39,7 @@ enum class JwtErrorCode(
     ),
 
     /**
-     * Token이 유효하지 않은 경우
+     * Token의 Type이 유효하지 않은 경우
      */
     INVALID_TOKEN_TYPE(
         code = "JWT_401_INVALID_TOKEN_TYPE",
@@ -48,7 +48,7 @@ enum class JwtErrorCode(
     ),
 
     /**
-     * Token이 유효하지 않은 경우
+     * Token의 Claim유효하지 않은 경우
      */
     INVALID_TOKEN_CLAIM(
         code = "JWT_401_INVALID_TOKEN_CLAIM",
