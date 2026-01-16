@@ -19,7 +19,7 @@ data class ApiResponse<T>(
         /**
          * 성공 응답(데이터 포함)을 생성
          */
-        fun <T> ok(
+        fun <T> success(
             successCode: SuccessCode,
             data: T,
             message: String = successCode.message
@@ -35,7 +35,7 @@ data class ApiResponse<T>(
         /**
          * 성공 응답(데이터 없음)을 생성
          */
-        fun ok(
+        fun success(
             successCode: SuccessCode,
             message: String = successCode.message
         ): ApiResponse<Nothing> {
