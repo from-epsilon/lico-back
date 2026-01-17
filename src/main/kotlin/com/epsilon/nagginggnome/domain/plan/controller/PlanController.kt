@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.controller
 
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
-import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
 import com.epsilon.nagginggnome.domain.plan.service.PlanService
 import com.epsilon.nagginggnome.global.constant.code.CommonSuccessCode
@@ -33,5 +33,17 @@ class PlanController(
     ): ResponseEntity<ApiResponse<Page<PlanListItemResponse>>> {
         val res = planService.getMyPlans(userId, pageable)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+    }
+
+    /**
+     * 플랜 생성 API
+     */
+    @PostMapping
+    fun createPlan(
+        @AuthenticationPrincipal userId: UUID,
+        @RequestBody req: PlanCreateRequest
+    ): ApiResponse<PlanCreateResponse> {
+        val res = planService.createPlan(req, userId)
+        return ApiResponse.success(CommonSuccessCode.SUCCESS, res)
     }
 }
