@@ -6,6 +6,7 @@ import com.epsilon.nagginggnome.domain.auth.dto.response.TokenReissueResponse
 import com.epsilon.nagginggnome.domain.auth.repository.RefreshTokenRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
 import com.epsilon.nagginggnome.global.constant.code.JwtErrorCode
+import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.crypto.TokenHasher
 import com.epsilon.nagginggnome.global.security.jwt.JwtProvider
@@ -52,12 +53,11 @@ class AuthService(
         // 토큰 검증
         validateRefreshToken(userId, refreshToken)
 
-        val role = userRepository.findByIdOrNull(userId)
-            ?.role
-            ?: throw ApiException(JwtErrorCode.INVALID_TOKEN_SUBJECT)
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
         // Access Token  재발급
-        val issuedAccess = jwtProvider.generateAccessToken(userId, role)
+        val issuedAccess = jwtProvider.generateAccessToken(userId, user.role)
 
         return TokenReissueResponse(
             accessToken = issuedAccess.token
