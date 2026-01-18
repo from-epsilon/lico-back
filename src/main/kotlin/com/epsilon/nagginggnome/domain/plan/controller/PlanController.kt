@@ -61,4 +61,16 @@ class PlanController(
         val res = planService.updatePlan(userId, planId, req)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
+
+    /**
+     * 플랜 삭제 API
+     */
+    @DeleteMapping("/{planId}")
+    fun deletePlan(
+        @AuthenticationPrincipal userId: UUID,
+        @PathVariable planId: Long
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        planService.deletePlan(userId, planId)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+    }
 }
