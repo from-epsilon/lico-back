@@ -43,9 +43,9 @@ abstract class BaseEntity {
     /**
      * Entity 삭제
      */
-    fun softDelete(now: Instant) {
+    fun softDelete() {
         if (this.deletedAt != null) return  // 이미 삭제된 경우 멱등 처리
-        this.deletedAt = now
+        this.deletedAt = Instant.now()
     }
 
     /**
