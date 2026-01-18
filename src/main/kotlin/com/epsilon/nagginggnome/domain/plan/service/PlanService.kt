@@ -103,7 +103,7 @@ class PlanService(
         newPlan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 생성)
-        chatMessageService.appendMessage(
+        chatMessageService.appendChatMessage(
             planId = newPlanId,
             snapshotId = newSnapshotId,
             snapshotVersion = newSnapshot.version,
@@ -150,7 +150,7 @@ class PlanService(
         plan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 수정)
-        chatMessageService.appendMessage(
+        chatMessageService.appendChatMessage(
             planId = planId,
             snapshotId = newSnapshotId,
             snapshotVersion = newSnapshot.version,
@@ -178,7 +178,7 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
 
         // 채팅 메시지 생성(플랜 삭제)
-        chatMessageService.appendMessage(
+        chatMessageService.appendChatMessage(
             planId = planId,
             snapshotId = snapshotId,
             snapshotVersion = plan.currentSnapshotVersion,

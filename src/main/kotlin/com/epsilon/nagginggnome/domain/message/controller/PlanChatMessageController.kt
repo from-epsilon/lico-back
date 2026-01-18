@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.domain.message.controller
 
+import com.epsilon.nagginggnome.domain.message.dto.request.ChatMessageCreateRequest
 import com.epsilon.nagginggnome.domain.message.dto.response.ChatMessageListItemResponse
 import com.epsilon.nagginggnome.domain.message.service.ChatMessageService
 import com.epsilon.nagginggnome.global.constant.code.CommonSuccessCode
@@ -9,10 +10,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 /**
@@ -24,12 +22,22 @@ class PlanChatMessageController(
     private val chatMessageService: ChatMessageService
 ) {
     @GetMapping("/{planId}/messages")
-    fun getPlanMessages(
+    fun getPlanChatMessages(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: Long,
         @PageableDefault(size = 20) pageable: Pageable
     ): ResponseEntity<ApiResponse<Page<ChatMessageListItemResponse>>> {
-        val res = chatMessageService.getPlanMessages(userId, planId, pageable)
+        val res = chatMessageService.getPlanChatMessages(userId, planId, pageable)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+    }
+
+    @PostMapping("/{planId}/messages")
+    fun createPlanChatMessage(
+        @AuthenticationPrincipal userId: UUID,
+        @PathVariable planId: Long,
+        @RequestBody req: ChatMessageCreateRequest
+    ): ResponseEntity<ApiResponse<Nothing>> {
+        chatMessageService.appendUserReply(userId, planId, req)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
     }
 }
