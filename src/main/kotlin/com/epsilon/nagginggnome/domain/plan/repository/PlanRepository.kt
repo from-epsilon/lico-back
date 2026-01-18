@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.domain.plan.repository
 
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import org.springframework.data.domain.Page
@@ -20,13 +21,13 @@ interface PlanRepository : JpaRepository<Plan, Long> {
     @Query(
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse(
-                    p.id,
-                    p.currentVersion,
-                    ps.id,
-                    ps.action,
-                    ps.rrule,
-                    ps.dtstart
-                    )
+                p.id,
+                p.currentVersion,
+                ps.id,
+                ps.action,
+                ps.rrule,
+                ps.dtstart
+            )
             FROM Plan p
             JOIN PlanSnapshot ps
                 ON ps.id = p.currentSnapshotId
@@ -48,4 +49,28 @@ interface PlanRepository : JpaRepository<Plan, Long> {
     ): Page<PlanListItemResponse>
 
     fun findByIdAndUserId(planId: Long, userId: UUID): Plan?
+
+    @Query(
+        value = """
+            SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(
+                p.id,
+                p.currentVersion,
+                ps.id,
+                ps.action,
+                ps.rrule,
+                ps.dtstart,
+                ps.purpose,
+                ps.motive,
+                ps.memo
+            )
+            FROM Plan p
+            JOIN PlanSnapshot ps
+                ON ps.id = p.currentSnapshotId
+            WHERE p.id = :planId
+                AND p.user.id = :userId
+                AND p.deletedAt is null
+                AND p.currentSnapshotId is not null
+        """
+    )
+    fun findPlanDetail(userId: UUID, planId: Long): PlanDetailResponse?
 }

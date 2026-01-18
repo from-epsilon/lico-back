@@ -3,6 +3,7 @@ package com.epsilon.nagginggnome.domain.plan.controller
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpdateResponse
 import com.epsilon.nagginggnome.domain.plan.service.PlanService
@@ -34,6 +35,18 @@ class PlanController(
         @PageableDefault(size = 20) pageable: Pageable
     ): ResponseEntity<ApiResponse<Page<PlanListItemResponse>>> {
         val res = planService.getMyPlans(userId, pageable)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+    }
+
+    /**
+     * 플랜 상세 조회 API
+     */
+    @GetMapping("/{planId}")
+    fun getPlan(
+        @AuthenticationPrincipal userId: UUID,
+        @PathVariable planId: Long
+    ): ResponseEntity<ApiResponse<PlanDetailResponse>> {
+        val res = planService.getPlanDetail(userId, planId)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 

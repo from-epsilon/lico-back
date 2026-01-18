@@ -3,6 +3,7 @@ package com.epsilon.nagginggnome.domain.plan.service
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpdateResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
@@ -33,6 +34,15 @@ class PlanService(
     @Transactional(readOnly = true)
     fun getMyPlans(userId: UUID, pageable: Pageable): Page<PlanListItemResponse> {
         return planRepository.findMyPlans(userId, pageable)
+    }
+
+    /**
+     * 플랜 상세 조회
+     */
+    @Transactional(readOnly = true)
+    fun getPlanDetail(userId: UUID, planId: Long): PlanDetailResponse {
+        return planRepository.findPlanDetail(userId, planId)
+            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
     }
 
     /**
