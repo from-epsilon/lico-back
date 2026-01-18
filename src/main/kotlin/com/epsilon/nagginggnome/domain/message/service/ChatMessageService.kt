@@ -1,6 +1,7 @@
 package com.epsilon.nagginggnome.domain.message.service
 
 import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
+import com.epsilon.nagginggnome.domain.message.dto.request.ChatMessageCreateRequest
 import com.epsilon.nagginggnome.domain.message.dto.response.ChatMessageListItemResponse
 import com.epsilon.nagginggnome.domain.message.entity.ChatMessage
 import com.epsilon.nagginggnome.domain.message.repository.ChatMessageRepository
@@ -38,6 +39,29 @@ class ChatMessageService(
                 content = content,
                 type = type
             )
+        )
+    }
+
+    @Transactional
+    fun appendUserReply(userId: UUID, planId: Long, req: ChatMessageCreateRequest) {
+        // 소유권 검증
+        val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
+            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+
+        // 삭제된 플랜은 접근 불가 처리
+        if (plan.isDeleted()) {
+            throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+        }
+
+        val snapshotId = plan.currentSnapshotId
+            ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
+
+        appendChatMessage(
+            planId = planId,
+            snapshotId = snapshotId,
+            snapshotVersion = plan.currentSnapshotVersion,
+            content = req.content,
+            type = ChatMessageType.USER_REPLY
         )
     }
 
