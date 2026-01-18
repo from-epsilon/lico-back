@@ -116,4 +116,13 @@ class PlanService(
             version = newVersion
         )
     }
+
+    @Transactional
+    fun deletePlan(userId: UUID, planId: Long) {
+
+        // 기존 플랜 조회
+        val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
+            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+        plan.softDelete()
+    }
 }
