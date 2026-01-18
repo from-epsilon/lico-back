@@ -26,28 +26,46 @@ class ChatMessage(
     type: ChatMessageType
 ) : BaseEntity() {
 
+    /**
+     * 고유 ID
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "chat_message_seq")
     @Column(name = "id", nullable = false, updatable = false)
     var id: Long? = null
         private set
 
+    /**
+     * 메시지가 발생된 플랜 ID
+     */
     @Column(name = "plan_id", nullable = false)
     var planId: Long = planId
         private set
 
+    /**
+     * 메시지가 발생된 스냅샷 ID
+     */
     @Column(name = "snapshot_id", nullable = false)
     var snapshotId: Long = snapshotId
         private set
 
+    /**
+     * 메시지가 발생된 스냅샷의 버전
+     */
     @Column(name = "version", nullable = false)
     var version: Int = version
         private set
 
+    /**
+     * 메시지 내용
+     */
     @Column(name = "content", nullable = false, columnDefinition = "text")
     var content: String = content
         private set
 
+    /**
+     * 메시지 타입(NAGGING, PLAN_HISTORY, USER_REPLY)
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     var type: ChatMessageType = type

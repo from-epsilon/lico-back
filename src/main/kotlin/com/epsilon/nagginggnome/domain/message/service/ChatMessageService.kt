@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional
 class ChatMessageService(
     private val chatMessageRepository: ChatMessageRepository
 ) {
+
+    /**
+     * 메시지 작성
+     */
     @Transactional
     fun appendMessage(planId: Long, snapshotId: Long, version: Int, content: String, type: ChatMessageType) {
         chatMessageRepository.save(
