@@ -25,4 +25,13 @@ enum class PlanErrorCode(
         status = HttpStatus.NOT_FOUND,
         message = "Plan not found."
     ),
+
+    /**
+     * 플랜의 현재 스냅샷 포인터가 비정상인 경우
+     */
+    PLAN_INVALID_STATE(
+        code = "PLAN_409_INVALID_STATE",
+        status = HttpStatus.CONFLICT,
+        message = "Plan is in an invalid state."
+    )
 }
