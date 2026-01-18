@@ -21,7 +21,7 @@ import java.util.*
  * 플랜 컨트롤러
  */
 @RestController
-@RequestMapping("v1/plans")
+@RequestMapping("/v1/plans")
 class PlanController(
     private val planService: PlanService
 ) {
@@ -47,6 +47,19 @@ class PlanController(
         @PathVariable planId: Long
     ): ResponseEntity<ApiResponse<PlanDetailResponse>> {
         val res = planService.getPlanDetail(userId, planId)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+    }
+
+    /**
+     * 플랜 특정 버전 상세 조회 API
+     */
+    @GetMapping("/{planId}/snapshots/{version}")
+    fun getPlanVersion(
+        @AuthenticationPrincipal userId: UUID,
+        @PathVariable planId: Long,
+        @PathVariable version: Int
+    ): ResponseEntity<ApiResponse<PlanDetailResponse>> {
+        val res = planService.getPlanVersionDetail(userId, planId, version)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 

@@ -72,5 +72,35 @@ interface PlanRepository : JpaRepository<Plan, Long> {
                 AND p.currentSnapshotId is not null
         """
     )
-    fun findPlanDetail(userId: UUID, planId: Long): PlanDetailResponse?
+    fun findPlanDetail(
+        @Param("userId") userId: UUID,
+        @Param("planId") planId: Long
+    ): PlanDetailResponse?
+
+    @Query(
+        value = """
+            SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(
+                p.id,
+                ps.version,
+                ps.id,
+                ps.action,
+                ps.rrule,
+                ps.dtstart,
+                ps.purpose,
+                ps.motive,
+                ps.memo
+            )
+            FROM PlanSnapshot ps
+            JOIN ps.plan p
+            WHERE p.id = :planId
+              AND p.user.id = :userId
+              AND p.deletedAt is null
+              AND ps.version = :version
+            """
+    )
+    fun findPlanVersionDetail(
+        @Param("userId") userId: UUID,
+        @Param("planId") planId: Long,
+        @Param("version") version: Int
+    ): PlanDetailResponse?
 }

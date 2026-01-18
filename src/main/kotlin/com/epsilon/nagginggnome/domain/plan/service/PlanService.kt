@@ -46,6 +46,15 @@ class PlanService(
     }
 
     /**
+     * 플랜 특정 버전 상세 조회
+     */
+    @Transactional(readOnly = true)
+    fun getPlanVersionDetail(userId: UUID, planId: Long, version: Int): PlanDetailResponse {
+        return planRepository.findPlanVersionDetail(userId, planId, version)
+            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+    }
+
+    /**
      * 플랜 생성, 스냅샷 생성
      */
     @Transactional
