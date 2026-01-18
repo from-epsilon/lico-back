@@ -1,5 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
+import com.epsilon.nagginggnome.domain.message.constant.ChatMessageTexts
+import com.epsilon.nagginggnome.domain.message.service.ChatMessageService
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
@@ -25,7 +27,8 @@ import java.util.*
 class PlanService(
     private val userRepository: UserRepository,
     private val planRepository: PlanRepository,
-    private val planSnapshotRepository: PlanSnapshotRepository
+    private val planSnapshotRepository: PlanSnapshotRepository,
+    private val chatMessageService: ChatMessageService
 ) {
 
     /**
@@ -98,6 +101,14 @@ class PlanService(
         // 플랜 포인터 갱신
         newPlan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
 
+        // 채팅 메시지 생성(플랜 생성)
+        chatMessageService.appendPlanHistoryMessage(
+            planId = newPlanId,
+            snapshotId = newSnapshotId,
+            version = newSnapshot.version,
+            content = ChatMessageTexts.PLAN_CREATED
+        )
+
         return PlanCreateResponse(
             planId = newPlanId,
             snapshotId = newSnapshotId,
@@ -136,6 +147,14 @@ class PlanService(
         // 플랜 포인터 갱신
         plan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
 
+        // 채팅 메시지 생성(플랜 수정)
+        chatMessageService.appendPlanHistoryMessage(
+            planId = planId,
+            snapshotId = newSnapshotId,
+            version = newSnapshot.version,
+            content = ChatMessageTexts.PLAN_UPDATED
+        )
+
         return PlanUpdateResponse(
             planId = planId,
             snapshotId = newSnapshotId,
@@ -149,7 +168,21 @@ class PlanService(
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
 
-        // 플랜 삭제(멱등 처리)
-        plan.takeIf { !it.isDeleted() }?.softDelete()
+        // 플랜 삭제 멱등 처리
+        if (plan.isDeleted()) return
+
+        val snapshotId = plan.currentSnapshotId
+            ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
+
+        // 채팅 메시지 생성(플랜 삭제)
+        chatMessageService.appendPlanHistoryMessage(
+            planId = planId,
+            snapshotId = snapshotId,
+            version = plan.currentVersion,
+            content = ChatMessageTexts.PLAN_DELETED
+        )
+
+        // 플랜 삭제
+        plan.softDelete()
     }
 }
