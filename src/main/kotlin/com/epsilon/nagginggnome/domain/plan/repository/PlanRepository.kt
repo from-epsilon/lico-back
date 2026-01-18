@@ -45,4 +45,6 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         @Param("userId") userId: UUID,
         pageable: Pageable
     ): Page<PlanListItemResponse>
+
+    fun findByIdAndUserId(planId: Long, userId: UUID): Plan?
 }
