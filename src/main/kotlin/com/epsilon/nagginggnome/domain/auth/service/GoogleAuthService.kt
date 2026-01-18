@@ -79,25 +79,23 @@ class GoogleAuthService(
     private fun signUp(providerUserId: String, emailAtProvider: String?, now: Instant): SocialLoginResponse =
         try {
             // 신규 유저 생성 및 저장
-            val newUser = User(
-                id = null,
-                nickname = null,
-                email = emailAtProvider,
+            val newUser = User().apply {
+                email = emailAtProvider
                 lastLoginAt = now
-            )
-            val savedUser = userRepository.save(newUser)
+            }
+            userRepository.save(newUser)
 
             // 소셜 계정 연결 엔티티 생성 및 저장
-            val socialAccount = UserSocialAccount().apply {
-                user = savedUser
-                provider = SocialProvider.GOOGLE
-                this.providerUserId = providerUserId
-                this.emailAtProvider = emailAtProvider
-            }
+            val socialAccount = UserSocialAccount(
+                user = newUser,
+                provider = SocialProvider.GOOGLE,
+                providerUserId = providerUserId,
+                emailAtProvider = emailAtProvider
+            )
             userSocialAccountRepository.save(socialAccount)
 
             // 토큰 발급 및 응답 생성
-            issueTokens(savedUser, isNewUser = true, now)
+            issueTokens(newUser, isNewUser = true, now)
 
         } catch (_: DataIntegrityViolationException) {
             val existingAccount = userSocialAccountRepository.findByProviderAndProviderUserId(

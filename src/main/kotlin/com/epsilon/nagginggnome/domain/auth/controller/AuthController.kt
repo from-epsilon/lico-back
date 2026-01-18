@@ -29,7 +29,7 @@ class AuthController(
         @RequestBody req: TokenReissueRequest
     ): ResponseEntity<ApiResponse<TokenReissueResponse>> {
         val res = authService.reissue(req)
-        return ResponseEntity.ok(ApiResponse.ok(CommonSuccessCode.SUCCESS, res))
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 
     /**
@@ -40,6 +40,6 @@ class AuthController(
         @RequestBody req: LogoutRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
         authService.logout(req)
-        return ResponseEntity.ok(ApiResponse.ok(CommonSuccessCode.SUCCESS))
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
     }
 }

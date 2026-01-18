@@ -25,6 +25,6 @@ class GoogleAuthController(
         @RequestBody req: SocialLoginRequest
     ): ResponseEntity<ApiResponse<SocialLoginResponse>> {
         val res = googleAuthService.loginOrSignUp(req)
-        return ResponseEntity.ok(ApiResponse.ok(CommonSuccessCode.SUCCESS, res))
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 }
