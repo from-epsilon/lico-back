@@ -83,7 +83,6 @@ class PlanService(
      */
     @Transactional
     fun updatePlan(userId: UUID, planId: Long, req: PlanUpdateRequest): PlanUpdateResponse {
-
         // 기존 플랜 조회
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
@@ -119,10 +118,11 @@ class PlanService(
 
     @Transactional
     fun deletePlan(userId: UUID, planId: Long) {
-
         // 기존 플랜 조회
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
-        plan.softDelete()
+
+        // 플랜 삭제(멱등 처리)
+        plan.takeIf { !it.isDeleted() }?.softDelete()
     }
 }
