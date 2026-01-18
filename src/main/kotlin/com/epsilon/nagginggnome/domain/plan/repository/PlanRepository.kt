@@ -31,6 +31,7 @@ interface PlanRepository : JpaRepository<Plan, Long> {
             JOIN PlanSnapshot ps
                 ON ps.id = p.currentSnapshotId
             WHERE p.user.id = :userId
+                AND p.deletedAt is null
                 AND p.currentSnapshotId is not null
             ORDER BY p.updatedAt desc
         """,
