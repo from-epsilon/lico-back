@@ -1,6 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
 import com.epsilon.nagginggnome.domain.message.constant.ChatMessageTexts
+import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
 import com.epsilon.nagginggnome.domain.message.service.ChatMessageService
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
@@ -102,11 +103,12 @@ class PlanService(
         newPlan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 생성)
-        chatMessageService.appendPlanHistoryMessage(
+        chatMessageService.appendMessage(
             planId = newPlanId,
             snapshotId = newSnapshotId,
             version = newSnapshot.version,
-            content = ChatMessageTexts.PLAN_CREATED
+            content = ChatMessageTexts.PLAN_CREATED,
+            type = ChatMessageType.PLAN_HISTORY
         )
 
         return PlanCreateResponse(
@@ -148,11 +150,12 @@ class PlanService(
         plan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 수정)
-        chatMessageService.appendPlanHistoryMessage(
+        chatMessageService.appendMessage(
             planId = planId,
             snapshotId = newSnapshotId,
             version = newSnapshot.version,
-            content = ChatMessageTexts.PLAN_UPDATED
+            content = ChatMessageTexts.PLAN_UPDATED,
+            type = ChatMessageType.PLAN_HISTORY
         )
 
         return PlanUpdateResponse(
@@ -175,11 +178,12 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
 
         // 채팅 메시지 생성(플랜 삭제)
-        chatMessageService.appendPlanHistoryMessage(
+        chatMessageService.appendMessage(
             planId = planId,
             snapshotId = snapshotId,
             version = plan.currentVersion,
-            content = ChatMessageTexts.PLAN_DELETED
+            content = ChatMessageTexts.PLAN_DELETED,
+            type = ChatMessageType.PLAN_HISTORY
         )
 
         // 플랜 삭제

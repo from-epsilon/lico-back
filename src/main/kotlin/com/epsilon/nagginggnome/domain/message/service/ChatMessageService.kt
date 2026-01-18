@@ -11,14 +11,14 @@ class ChatMessageService(
     private val chatMessageRepository: ChatMessageRepository
 ) {
     @Transactional
-    fun appendPlanHistoryMessage(planId: Long, snapshotId: Long, version: Int, content: String) {
+    fun appendMessage(planId: Long, snapshotId: Long, version: Int, content: String, type: ChatMessageType) {
         chatMessageRepository.save(
             ChatMessage(
                 planId = planId,
                 snapshotId = snapshotId,
                 version = version,
                 content = content,
-                type = ChatMessageType.PLAN_HISTORY
+                type = type
             )
         )
     }
