@@ -1,6 +1,6 @@
 package com.epsilon.nagginggnome.domain.message.entity
 
-import com.epsilon.nagginggnome.domain.message.constant.MessageType
+import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
 import com.epsilon.nagginggnome.global.entity.BaseEntity
 import jakarta.persistence.*
 
@@ -23,7 +23,7 @@ class ChatMessage(
     snapshotId: Long,
     version: Int,
     content: String,
-    type: MessageType
+    type: ChatMessageType
 ) : BaseEntity() {
 
     @Id
@@ -50,6 +50,6 @@ class ChatMessage(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    var type: MessageType = type
+    var type: ChatMessageType = type
         private set
 }

@@ -1,6 +1,6 @@
 package com.epsilon.nagginggnome.domain.message.service
 
-import com.epsilon.nagginggnome.domain.message.constant.MessageType
+import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
 import com.epsilon.nagginggnome.domain.message.entity.ChatMessage
 import com.epsilon.nagginggnome.domain.message.repository.ChatMessageRepository
 import org.springframework.stereotype.Service
@@ -18,7 +18,7 @@ class ChatMessageService(
                 snapshotId = snapshotId,
                 version = version,
                 content = content,
-                type = MessageType.PLAN_HISTORY
+                type = ChatMessageType.PLAN_HISTORY
             )
         )
     }
