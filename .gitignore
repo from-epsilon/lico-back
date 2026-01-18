@@ -9,6 +9,8 @@ __pycache__/
 /build
 .kotlin
 
+src/main/resources/application-*.yaml
+
 # Created by https://www.toptal.com/developers/gitignore/api/kotlin,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,intellij
 
