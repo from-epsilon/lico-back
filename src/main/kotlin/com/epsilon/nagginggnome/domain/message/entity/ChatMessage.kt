@@ -21,7 +21,7 @@ import jakarta.persistence.*
 class ChatMessage(
     planId: Long,
     snapshotId: Long,
-    version: Int,
+    snapshotVersion: Int,
     content: String,
     type: ChatMessageType
 ) : BaseEntity() {
@@ -52,8 +52,8 @@ class ChatMessage(
     /**
      * 메시지가 발생된 스냅샷의 버전
      */
-    @Column(name = "version", nullable = false)
-    var version: Int = version
+    @Column(name = "snapshotVersion", nullable = false)
+    var snapshotVersion: Int = snapshotVersion
         private set
 
     /**

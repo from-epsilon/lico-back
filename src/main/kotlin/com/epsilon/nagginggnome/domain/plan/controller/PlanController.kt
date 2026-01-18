@@ -65,13 +65,13 @@ class PlanController(
     /**
      * 플랜 특정 버전 상세 조회 API
      */
-    @GetMapping("/{planId}/snapshots/{version}")
-    fun getPlanVersion(
+    @GetMapping("/{planId}/snapshots/{snapshotVersion}")
+    fun getPlanSnapshotVersion(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: Long,
-        @PathVariable version: Int
+        @PathVariable snapshotVersion: Int
     ): ResponseEntity<ApiResponse<PlanDetailResponse>> {
-        val res = planService.getPlanVersionDetail(userId, planId, version)
+        val res = planService.getPlanSnapshotVersionDetail(userId, planId, snapshotVersion)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 

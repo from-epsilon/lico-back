@@ -15,12 +15,12 @@ class ChatMessageService(
      * 메시지 작성
      */
     @Transactional
-    fun appendMessage(planId: Long, snapshotId: Long, version: Int, content: String, type: ChatMessageType) {
+    fun appendMessage(planId: Long, snapshotId: Long, snapshotVersion: Int, content: String, type: ChatMessageType) {
         chatMessageRepository.save(
             ChatMessage(
                 planId = planId,
                 snapshotId = snapshotId,
-                version = version,
+                snapshotVersion = snapshotVersion,
                 content = content,
                 type = type
             )

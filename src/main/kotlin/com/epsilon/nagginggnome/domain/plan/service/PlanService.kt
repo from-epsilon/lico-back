@@ -54,15 +54,15 @@ class PlanService(
      */
     @Transactional(readOnly = true)
     fun getSnapshotVersions(userId: UUID, planId: Long): List<Int> {
-        return planSnapshotRepository.findVersionsByPlan(userId, planId)
+        return planSnapshotRepository.findSnapShotVersionsByPlan(userId, planId)
     }
 
     /**
      * 플랜 특정 버전 상세 조회
      */
     @Transactional(readOnly = true)
-    fun getPlanVersionDetail(userId: UUID, planId: Long, version: Int): PlanDetailResponse {
-        return planRepository.findPlanVersionDetail(userId, planId, version)
+    fun getPlanSnapshotVersionDetail(userId: UUID, planId: Long, snapshotVersion: Int): PlanDetailResponse {
+        return planRepository.findPlanSnapshotVersionDetail(userId, planId, snapshotVersion)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
     }
 
@@ -100,13 +100,13 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
 
         // 플랜 포인터 갱신
-        newPlan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
+        newPlan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 생성)
         chatMessageService.appendMessage(
             planId = newPlanId,
             snapshotId = newSnapshotId,
-            version = newSnapshot.version,
+            snapshotVersion = newSnapshot.version,
             content = ChatMessageTexts.PLAN_CREATED,
             type = ChatMessageType.PLAN_HISTORY
         )
@@ -114,7 +114,7 @@ class PlanService(
         return PlanCreateResponse(
             planId = newPlanId,
             snapshotId = newSnapshotId,
-            version = newSnapshot.version
+            snapshotVersion = newSnapshot.version
         )
     }
 
@@ -128,7 +128,7 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
 
         // 다음 스냅샷 버전
-        val newVersion = plan.currentVersion + 1
+        val newVersion = plan.currentSnapshotVersion + 1
 
         // 다음 스냅샷 생성
         val newSnapshot = planSnapshotRepository.save(
@@ -147,13 +147,13 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
 
         // 플랜 포인터 갱신
-        plan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
+        plan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
 
         // 채팅 메시지 생성(플랜 수정)
         chatMessageService.appendMessage(
             planId = planId,
             snapshotId = newSnapshotId,
-            version = newSnapshot.version,
+            snapshotVersion = newSnapshot.version,
             content = ChatMessageTexts.PLAN_UPDATED,
             type = ChatMessageType.PLAN_HISTORY
         )
@@ -161,7 +161,7 @@ class PlanService(
         return PlanUpdateResponse(
             planId = planId,
             snapshotId = newSnapshotId,
-            version = newVersion
+            snapshotVersion = newVersion
         )
     }
 
@@ -181,7 +181,7 @@ class PlanService(
         chatMessageService.appendMessage(
             planId = planId,
             snapshotId = snapshotId,
-            version = plan.currentVersion,
+            snapshotVersion = plan.currentSnapshotVersion,
             content = ChatMessageTexts.PLAN_DELETED,
             type = ChatMessageType.PLAN_HISTORY
         )

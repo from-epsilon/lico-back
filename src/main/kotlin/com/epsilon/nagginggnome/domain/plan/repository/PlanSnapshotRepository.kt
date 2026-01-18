@@ -24,7 +24,7 @@ interface PlanSnapshotRepository : JpaRepository<PlanSnapshot, Long> {
             ORDER BY ps.version desc
         """
     )
-    fun findVersionsByPlan(
+    fun findSnapShotVersionsByPlan(
         @Param("userId") userId: UUID,
         @Param("planId") planId: Long
     ): List<Int>
