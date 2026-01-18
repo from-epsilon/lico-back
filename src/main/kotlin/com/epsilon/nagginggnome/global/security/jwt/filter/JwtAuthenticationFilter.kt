@@ -1,7 +1,6 @@
 package com.epsilon.nagginggnome.global.security.jwt.filter
 
 import com.epsilon.nagginggnome.domain.user.constant.Role
-import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
 import com.epsilon.nagginggnome.global.constant.code.JwtErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.jwt.JwtConstants
@@ -41,7 +40,7 @@ class JwtAuthenticationFilter(
         val token: String = jwtUtils.extractToken(header)
         val claims: Claims = jwtUtils.extractClaims(token)
 
-        if(!jwtUtils.isAccessToken(claims)){
+        if (!jwtUtils.isAccessToken(claims)) {
             throw ApiException(JwtErrorCode.INVALID_TOKEN_TYPE)
         }
 

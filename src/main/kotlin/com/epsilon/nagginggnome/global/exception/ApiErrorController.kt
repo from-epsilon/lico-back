@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/v1")
-class ApiErrorController: ErrorController {
+class ApiErrorController : ErrorController {
 
     @RequestMapping("/error")
     fun handleError(request: HttpServletRequest): ResponseEntity<ApiResponse<Nothing>> {

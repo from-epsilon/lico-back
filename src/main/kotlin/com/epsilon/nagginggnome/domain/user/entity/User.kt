@@ -19,7 +19,7 @@ class User : BaseEntity() {
     @UuidGenerator
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
     var id: UUID? = null
-         private set
+        private set
 
     /**
      * 별명

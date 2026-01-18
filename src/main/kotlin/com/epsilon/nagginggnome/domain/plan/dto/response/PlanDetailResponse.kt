@@ -7,8 +7,8 @@ import java.time.Instant
  */
 data class PlanDetailResponse(
     val planId: Long,
-    val currentVersion: Int,
     val currentSnapshotId: Long,
+    val currentSnapshotVersion: Int,
     val action: String,
     val rrule: String,
     val dtstart: Instant,

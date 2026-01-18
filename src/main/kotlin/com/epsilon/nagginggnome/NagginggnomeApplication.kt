@@ -11,5 +11,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 class NagginggnomeApplication
 
 fun main(args: Array<String>) {
-	runApplication<NagginggnomeApplication>(*args)
+    runApplication<NagginggnomeApplication>(*args)
 }

@@ -22,8 +22,8 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse(
                 p.id,
-                p.currentVersion,
                 ps.id,
+                p.currentSnapshotVersion,
                 ps.action,
                 ps.rrule,
                 ps.dtstart
@@ -62,8 +62,8 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(
                 p.id,
-                p.currentVersion,
                 ps.id,
+                p.currentSnapshotVersion,
                 ps.action,
                 ps.rrule,
                 ps.dtstart,
@@ -92,8 +92,8 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(
                 p.id,
-                ps.version,
                 ps.id,
+                ps.version,
                 ps.action,
                 ps.rrule,
                 ps.dtstart,
@@ -106,12 +106,12 @@ interface PlanRepository : JpaRepository<Plan, Long> {
             WHERE p.id = :planId
               AND p.user.id = :userId
               AND p.deletedAt is null
-              AND ps.version = :version
+              AND ps.version = :snapshotVersion
             """
     )
-    fun findPlanVersionDetail(
+    fun findPlanSnapshotVersionDetail(
         @Param("userId") userId: UUID,
         @Param("planId") planId: Long,
-        @Param("version") version: Int
+        @Param("snapshotVersion") snapshotVersion: Int
     ): PlanDetailResponse?
 }

@@ -6,5 +6,5 @@ package com.epsilon.nagginggnome.domain.plan.dto.response
 data class PlanUpdateResponse(
     val planId: Long,
     val snapshotId: Long,
-    val version: Int
+    val snapshotVersion: Int
 )

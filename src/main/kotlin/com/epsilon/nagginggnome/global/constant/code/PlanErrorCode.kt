@@ -2,6 +2,9 @@ package com.epsilon.nagginggnome.global.constant.code
 
 import org.springframework.http.HttpStatus
 
+/**
+ * 플랜 관련 에러 코드 정의
+ */
 enum class PlanErrorCode(
     override val code: String,
     override val status: HttpStatus,
@@ -25,4 +28,13 @@ enum class PlanErrorCode(
         status = HttpStatus.NOT_FOUND,
         message = "Plan not found."
     ),
+
+    /**
+     * 플랜의 현재 스냅샷 포인터가 비정상인 경우
+     */
+    PLAN_INVALID_STATE(
+        code = "PLAN_409_INVALID_STATE",
+        status = HttpStatus.CONFLICT,
+        message = "Plan is in an invalid state."
+    )
 }

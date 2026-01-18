@@ -6,9 +6,9 @@ import jakarta.persistence.*
 
 /**
  * plans 테이블 매핑 엔티티
- * 
+ *
  * 역할
- * - 최신 스냅샷 포인터(currentSnapshotId) 및 최신 버전(currentVersion) 캐시 유지
+ * - 최신 스냅샷 포인터(currentSnapshotId) 및 최신 버전(currentSnapshotVersion) 캐시 유지
  */
 @Entity
 @Table(
@@ -24,7 +24,7 @@ import jakarta.persistence.*
 class Plan(
     user: User,
     currentSnapshot: Long? = null,
-    currentVersion: Int = 0
+    currentSnapshotVersion: Int = 0
 ) : BaseEntity() {
 
     /**
@@ -54,16 +54,16 @@ class Plan(
     /**
      * 현재 버전
      */
-    @Column(name = "current_version", nullable = false)
-    var currentVersion: Int = currentVersion
+    @Column(name = "current_snapshot_version", nullable = false)
+    var currentSnapshotVersion: Int = currentSnapshotVersion
         private set
 
     /**
      * 스냅샷 생성 후 Plan에 현재 포인터를 갱신
      * - 트랜잭션 내에서 Snapshot INSERT 이후 호출
      */
-    fun pointToSnapshot(snapshotId: Long, version: Int) {
+    fun pointToSnapshot(snapshotId: Long, snapshotVersion: Int) {
         this.currentSnapshotId = snapshotId
-        this.currentVersion = version
+        this.currentSnapshotVersion = snapshotVersion
     }
 }
