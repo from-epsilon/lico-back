@@ -44,9 +44,9 @@ class PlanController(
     fun createPlan(
         @AuthenticationPrincipal userId: UUID,
         @RequestBody req: PlanCreateRequest
-    ): ApiResponse<PlanCreateResponse> {
+    ): ResponseEntity<ApiResponse<PlanCreateResponse>> {
         val res = planService.createPlan(userId, req)
-        return ApiResponse.success(CommonSuccessCode.SUCCESS, res)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 
     /**
@@ -57,8 +57,8 @@ class PlanController(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: Long,
         @RequestBody req: PlanUpdateRequest
-    ): ApiResponse<PlanUpdateResponse> {
+    ): ResponseEntity<ApiResponse<PlanUpdateResponse>> {
         val res = planService.updatePlan(userId, planId, req)
-        return ApiResponse.success(CommonSuccessCode.SUCCESS, res)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 }
