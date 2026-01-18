@@ -3,7 +3,7 @@ package com.epsilon.nagginggnome.domain.message.constant
 /**
  * 메시지 타입
  */
-enum class MessageType {
+enum class ChatMessageType {
 
     /**
      * 잔소리
