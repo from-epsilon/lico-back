@@ -1,8 +1,10 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
+import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpdateResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
@@ -34,13 +36,14 @@ class PlanService(
     }
 
     /**
-     * 플랜 생성
+     * 플랜 생성, 스냅샷 생성
      */
     @Transactional
-    fun createPlan(req: PlanCreateRequest, userId: UUID): PlanCreateResponse {
+    fun createPlan(userId: UUID, req: PlanCreateRequest): PlanCreateResponse {
         val user = userRepository.findByIdOrNull(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
+        // 플랜 생성
         val newPlan = planRepository.save(
             Plan(
                 user = user
@@ -49,6 +52,7 @@ class PlanService(
         val newPlanId = newPlan.id
             ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
 
+        // 스냅샷 생성
         val newSnapshot = planSnapshotRepository.save(
             PlanSnapshot(
                 plan = newPlan,
@@ -63,12 +67,53 @@ class PlanService(
         )
         val newSnapshotId = newSnapshot.id
             ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
+
+        // 플랜 포인터 갱신
         newPlan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
 
         return PlanCreateResponse(
             planId = newPlanId,
             snapshotId = newSnapshotId,
             version = newSnapshot.version
+        )
+    }
+
+    /**
+     * 플랜 수정, 다음 스냅샷 생성
+     */
+    @Transactional
+    fun updatePlan(userId: UUID, planId: Long, req: PlanUpdateRequest): PlanUpdateResponse {
+
+        // 기존 플랜 조회
+        val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
+            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+
+        // 다음 스냅샷 버전
+        val newVersion = plan.currentVersion + 1
+
+        // 다음 스냅샷 생성
+        val newSnapshot = planSnapshotRepository.save(
+            PlanSnapshot(
+                plan = plan,
+                version = newVersion,
+                action = req.action,
+                rrule = req.rrule,
+                dtstart = req.dtstart,
+                purpose = req.purpose,
+                motive = req.motive,
+                memo = req.memo
+            )
+        )
+        val newSnapshotId = newSnapshot.id
+            ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
+
+        // 플랜 포인터 갱신
+        plan.pointToSnapshot(snapshotId = newSnapshotId, version = newSnapshot.version)
+
+        return PlanUpdateResponse(
+            planId = planId,
+            snapshotId = newSnapshotId,
+            version = newVersion
         )
     }
 }
