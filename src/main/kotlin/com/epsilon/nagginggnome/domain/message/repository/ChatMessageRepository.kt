@@ -35,7 +35,7 @@ interface ChatMessageRepository : JpaRepository<ChatMessage, Long> {
             WHERE cm.planId = :planId
         """
     )
-    fun findMessagesByPlanId(
+    fun findChatMessagesByPlanId(
         @Param("planId") planId: Long,
         pageable: Pageable
     ): Page<ChatMessageListItemResponse>

@@ -23,7 +23,13 @@ class ChatMessageService(
      * 메시지 작성
      */
     @Transactional
-    fun appendMessage(planId: Long, snapshotId: Long, snapshotVersion: Int, content: String, type: ChatMessageType) {
+    fun appendChatMessage(
+        planId: Long,
+        snapshotId: Long,
+        snapshotVersion: Int,
+        content: String,
+        type: ChatMessageType
+    ) {
         chatMessageRepository.save(
             ChatMessage(
                 planId = planId,
@@ -36,7 +42,7 @@ class ChatMessageService(
     }
 
     @Transactional(readOnly = true)
-    fun getPlanMessages(userId: UUID, planId: Long, pageable: Pageable): Page<ChatMessageListItemResponse> {
+    fun getPlanChatMessages(userId: UUID, planId: Long, pageable: Pageable): Page<ChatMessageListItemResponse> {
         // 소유권 검증
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
@@ -46,7 +52,7 @@ class ChatMessageService(
             throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
         }
 
-        return chatMessageRepository.findMessagesByPlanId(
+        return chatMessageRepository.findChatMessagesByPlanId(
             planId = planId,
             pageable = pageable
         )
