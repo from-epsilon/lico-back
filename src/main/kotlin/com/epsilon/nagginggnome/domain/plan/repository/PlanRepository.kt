@@ -48,8 +48,15 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         pageable: Pageable
     ): Page<PlanListItemResponse>
 
+    /**
+     * 플랜 조회(소유자 검증 포함)
+     * - deletedAt 필터가 없으므로, 이미 삭제된 플랜도 조회될 수 있음
+     */
     fun findByIdAndUserId(planId: Long, userId: UUID): Plan?
 
+    /**
+     * 플랜 상세 조회(최신 스냅샷 기준)
+     */
     @Query(
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(
@@ -77,6 +84,9 @@ interface PlanRepository : JpaRepository<Plan, Long> {
         @Param("planId") planId: Long
     ): PlanDetailResponse?
 
+    /**
+     * 플랜 특정 버전 상세 조회
+     */
     @Query(
         value = """
             SELECT new com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse(

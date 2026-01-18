@@ -45,6 +45,9 @@ class PlanService(
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
     }
 
+    /**
+     * 플랜 스냅샷 버전 목록 조회
+     */
     @Transactional(readOnly = true)
     fun getSnapshotVersions(userId: UUID, planId: Long): List<Int> {
         return planSnapshotRepository.findVersionsByPlan(userId, planId)
