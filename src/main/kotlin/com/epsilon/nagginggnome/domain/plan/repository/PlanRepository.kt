@@ -40,7 +40,8 @@ interface PlanRepository : JpaRepository<Plan, Long> {
             SELECT count(p.id)
             FROM Plan p
             WHERE p.user.id = :userId
-              AND p.currentSnapshotId is not null
+                AND p.deletedAt is null
+                AND p.currentSnapshotId is not null
         """
     )
     fun findMyPlans(
