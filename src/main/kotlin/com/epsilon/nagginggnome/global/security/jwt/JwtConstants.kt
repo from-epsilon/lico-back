@@ -1,5 +1,8 @@
 package com.epsilon.nagginggnome.global.security.jwt
 
+/**
+ * JWT 관련 상수
+ */
 object JwtConstants {
     const val AUTHORIZATION_HEADER: String = "Authorization"
     const val BEARER_PREFIX: String = "Bearer "

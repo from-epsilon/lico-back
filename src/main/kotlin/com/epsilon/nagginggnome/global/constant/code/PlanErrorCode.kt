@@ -2,6 +2,9 @@ package com.epsilon.nagginggnome.global.constant.code
 
 import org.springframework.http.HttpStatus
 
+/**
+ * 플랜 관련 에러 코드 정의
+ */
 enum class PlanErrorCode(
     override val code: String,
     override val status: HttpStatus,

@@ -15,7 +15,7 @@ data class ApiResponse<T>(
     val timestamp: Instant = Instant.now()
 ) {
     companion object {
-        
+
         /**
          * 성공 응답(데이터 포함)을 생성
          */

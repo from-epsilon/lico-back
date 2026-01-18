@@ -55,7 +55,7 @@ enum class JwtErrorCode(
         status = HttpStatus.UNAUTHORIZED,
         message = "Invalid token claim."
     ),
-    
+
     /**
      * Token 서명이 유효하지 않은 경우
      */

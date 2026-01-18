@@ -2,6 +2,9 @@ package com.epsilon.nagginggnome.global.constant.code
 
 import org.springframework.http.HttpStatus
 
+/**
+ * 공통 에러 코드 정의
+ */
 enum class CommonErrorCode(
     override val code: String,
     override val status: HttpStatus,

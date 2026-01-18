@@ -6,7 +6,7 @@ import jakarta.persistence.*
 
 /**
  * plans 테이블 매핑 엔티티
- * 
+ *
  * 역할
  * - 최신 스냅샷 포인터(currentSnapshotId) 및 최신 버전(currentSnapshotVersion) 캐시 유지
  */

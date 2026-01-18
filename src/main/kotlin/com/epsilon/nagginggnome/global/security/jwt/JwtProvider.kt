@@ -40,7 +40,8 @@ class JwtProvider(
 
         return JwtIssueResult(
             token = token,
-            expiresAt = exp)
+            expiresAt = exp
+        )
     }
 
     /**
@@ -63,6 +64,7 @@ class JwtProvider(
 
         return JwtIssueResult(
             token = token,
-            expiresAt = exp)
+            expiresAt = exp
+        )
     }
 }

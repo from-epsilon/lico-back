@@ -6,9 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
 
-/**
- * UserSocialAccount 엔티티 전용 Repository
- */
 @Repository
 interface UserSocialAccountRepository : JpaRepository<UserSocialAccount, UUID> {
 
