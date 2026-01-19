@@ -30,3 +30,13 @@ social:
 security:
   token-hash:
     pepper: ${TOKEN_HASH_PEPPER}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+  endpoint:
+    health:
+      show-details: NEVER

@@ -12,7 +12,7 @@ enum class SecurityPaths(
      * 로그아웃 API
      */
     AUTH_LOGOUT("/v1/auth/logout", true),
-    
+
     /**
      * 토큰 재발급 API
      */
@@ -22,6 +22,11 @@ enum class SecurityPaths(
      * 소셜 인증 API
      */
     AUTH_SOCIAL("/v1/auth/social/**", true),
+
+    /**
+     * 헬스 체크 API
+     */
+    HEALTH_CHECK("/actuator/health/**", true),
 
     /**
      * 에러 엔드포인트
