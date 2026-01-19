@@ -73,6 +73,7 @@ kotlin {
 
 tasks.named('test') {
     outputs.dir snippetsDir
+    failOnNoDiscoveredTests = false
     useJUnitPlatform()
 }
 
