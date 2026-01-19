@@ -102,3 +102,42 @@ jobs:
             ${{ steps.image.outputs.name }}:${{ steps.vars.outputs.latest_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # infra 레포 CD 워크플로우를 트리거
+      - name: Trigger infra CD (dev/prod)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.INFRA_TOKEN }}
+          OWNER: ${{ secrets.INFRA_OWNER }}
+          REPO: ${{ secrets.INFRA_REPO }}
+          IMAGE: ${{ steps.image.outputs.name }}:${{ steps.vars.outputs.immutable_tag }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${BRANCH}" == "main" ]]; then
+            DEPLOY_ENV="prod"
+          elif [[ "${BRANCH}" == "develop" ]]; then
+            DEPLOY_ENV="dev"
+          else
+            echo "Unsupported branch for CD: ${BRANCH}"
+            exit 1
+          fi
+
+          WORKFLOW_FILE="deploy.yml"
+
+          curl -sS -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
+            -d "$(cat <<JSON
+          {
+            "ref": "main",
+            "inputs": {
+              "env": "${DEPLOY_ENV}",
+              "image": "${IMAGE}"
+            }
+          }
+          JSON
+          )"
