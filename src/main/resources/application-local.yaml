@@ -1,11 +1,18 @@
 spring:
-  config:
-    activate:
-      on-profile: local
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
-logging:
-  level:
-    org.springframework.security: DEBUG
+  flyway:
+    enabled: false
+    clean-disabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+  endpoint:
+    health:
+      show-details: ALWAYS
