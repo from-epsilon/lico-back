@@ -92,6 +92,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
+        id: docker_build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -111,19 +112,17 @@ jobs:
           TOKEN: ${{ secrets.INFRA_TOKEN }}
           OWNER: ${{ secrets.INFRA_OWNER }}
           REPO: ${{ secrets.INFRA_REPO }}
-          IMAGE: ${{ steps.image.outputs.name }}:${{ steps.vars.outputs.immutable_tag }}
+          IMAGE: ${{ steps.image.outputs.name }}@${{ steps.docker_build.outputs.digest }}
           BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-
-          # 현재는 develop(dev)만 배포 수행
-          if [[ "${BRANCH}" != "develop" ]]; then
-            echo "Skip CD: branch=${BRANCH}"
-            exit 0
+          
+          if [[ "${BRANCH}" == "main" ]]; then DEPLOY_ENV="prod"
+          elif [[ "${BRANCH}" == "develop" ]]; then DEPLOY_ENV="dev"
+          else echo "Unsupported branch for CD: ${BRANCH}"; exit 1
           fi
-          DEPLOY_ENV="dev"
+          
           WORKFLOW_FILE="deploy.yml"
-
           curl -sS -X POST \
             -H "Authorization: Bearer ${TOKEN}" \
             -H "Accept: application/vnd.github+json" \
