@@ -116,15 +116,12 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "${BRANCH}" == "main" ]]; then
-            DEPLOY_ENV="prod"
-          elif [[ "${BRANCH}" == "develop" ]]; then
-            DEPLOY_ENV="dev"
-          else
-            echo "Unsupported branch for CD: ${BRANCH}"
-            exit 1
+          # 현재는 develop(dev)만 배포 수행
+          if [[ "${BRANCH}" != "develop" ]]; then
+            echo "Skip CD: branch=${BRANCH}"
+            exit 0
           fi
-
+          DEPLOY_ENV="dev"
           WORKFLOW_FILE="deploy.yml"
 
           curl -sS -X POST \
