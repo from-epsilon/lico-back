@@ -52,7 +52,7 @@ class ChatMessage(
     /**
      * 메시지가 발생된 스냅샷의 버전
      */
-    @Column(name = "snapshotVersion", nullable = false)
+    @Column(name = "snapshot_version", nullable = false)
     var snapshotVersion: Int = snapshotVersion
         private set
 

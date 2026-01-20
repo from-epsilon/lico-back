@@ -43,12 +43,11 @@ class UserSocialAccount(
     var id: UUID? = null
         private set
 
-    // Lazy로 두어 인증 처리에서 불필요한 User 로딩을 피함
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
         name = "user_id",
         nullable = false,
-        foreignKey = ForeignKey(name = "fk_social_user")
+        foreignKey = ForeignKey(name = "fk_user_social_accounts_user_id")
     )
     var user: User = user
         private set
