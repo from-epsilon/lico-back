@@ -7,4 +7,10 @@ import java.util.*
 
 @Repository
 interface FcmTokenRepository : JpaRepository<FcmToken, UUID> {
+
+    fun findByUserId(userId: UUID): FcmToken?
+
+    fun findByToken(token: String): FcmToken?
+
+    fun deleteByUserId(userId: UUID): Boolean
 }
