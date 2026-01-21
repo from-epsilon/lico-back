@@ -3,19 +3,22 @@ package com.epsilon.nagginggnome.domain.user.entity
 import jakarta.persistence.*
 import java.util.*
 
+/**
+ * 유저 상세 정보 엔티티
+ */
 @Entity
 @Table(
     name = "user_details"
 )
 class UserDetail(
     user: User,
-    nickname: String?,
-    coreValue: String?,
-    motive: String?,
-    selfImage: String?,
-    verbosityPerDay: Double?,
-    sleepTime: Int?,
-    wakeTime: Int?
+    nickname: String? = null,
+    coreValue: String? = null,
+    motive: String? = null,
+    selfImage: String? = null,
+    verbosityPerDay: Double? = null,
+    sleepTime: Int? = null,
+    wakeTime: Int? = null
 ) {
 
     /**
@@ -89,13 +92,13 @@ class UserDetail(
         private set
 
     fun patch(
-        nickname: String?,
-        coreValue: String?,
-        motive: String?,
-        selfImage: String?,
-        verbosityPerDay: Double?,
-        sleepTime: Int?,
-        wakeTime: Int?
+        nickname: String? = null,
+        coreValue: String? = null,
+        motive: String? = null,
+        selfImage: String? = null,
+        verbosityPerDay: Double? = null,
+        sleepTime: Int? = null,
+        wakeTime: Int? = null
     ) {
         nickname?.let { this.nickname = it }
         coreValue?.let { this.coreValue = it }
