@@ -67,6 +67,7 @@ class UserDetailService(
                 )
             )
         } catch (_: DataIntegrityViolationException) {
+            // 레이스 컨디션으로 PK 중복이 발생할 수 있으므로 409로 매핑
             throw ApiException(UserErrorCode.USER_DETAIL_ALREADY_EXISTS)
         }
     }
