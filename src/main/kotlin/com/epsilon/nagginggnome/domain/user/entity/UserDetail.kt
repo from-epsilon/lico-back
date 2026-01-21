@@ -87,4 +87,22 @@ class UserDetail(
     @Column(name = "wake_time", nullable = false)
     var wakeTime: Int = wakeTime
         private set
+
+    fun update(
+        nickname: String,
+        coreValue: String,
+        motive: String,
+        selfImage: String,
+        verbosityPerDay: Double,
+        sleepTime: Int,
+        wakeTime: Int
+    ) {
+        this.nickname = nickname
+        this.coreValue = coreValue
+        this.motive = motive
+        this.selfImage = selfImage
+        this.verbosityPerDay = verbosityPerDay
+        this.sleepTime = sleepTime
+        this.wakeTime = wakeTime
+    }
 }
