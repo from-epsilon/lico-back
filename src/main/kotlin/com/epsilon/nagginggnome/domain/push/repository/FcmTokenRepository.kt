@@ -12,5 +12,5 @@ interface FcmTokenRepository : JpaRepository<FcmToken, UUID> {
 
     fun findByToken(token: String): FcmToken?
 
-    fun deleteByUserId(userId: UUID): Boolean
+    fun deleteByUserId(userId: UUID): Long
 }
