@@ -17,3 +17,9 @@ management:
   endpoint:
     health:
       show-details: NEVER
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
