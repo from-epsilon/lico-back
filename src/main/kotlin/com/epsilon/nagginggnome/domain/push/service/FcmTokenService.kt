@@ -63,7 +63,6 @@ class FcmTokenService(
         fcmTokenRepository.delete(fcmToken)
     }
 
-
     /**
      * 유저의 FCM 토큰 삭제
      * - 하드 딜리트

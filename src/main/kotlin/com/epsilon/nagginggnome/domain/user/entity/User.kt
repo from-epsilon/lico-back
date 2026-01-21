@@ -10,7 +10,10 @@ import java.util.*
 
 @Entity
 @Table(name = "users")
-class User : BaseEntity() {
+class User(
+    email: String?,
+    lastLoginAt: Instant
+) : BaseEntity() {
 
     /**
      * 고유 ID
@@ -22,16 +25,11 @@ class User : BaseEntity() {
         private set
 
     /**
-     * 별명
-     */
-    @Column(name = "nickname")
-    var nickname: String? = null
-
-    /**
      * 이메일
      */
     @Column(name = "email")
-    var email: String? = null
+    var email: String? = email
+        private set
 
     /**
      * 역할
@@ -47,10 +45,26 @@ class User : BaseEntity() {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     var status: UserStatus = UserStatus.ACTIVE
+        private set
 
     /**
      * 마지막 로그인 시각
      */
-    @Column(name = "last_login_at")
-    var lastLoginAt: Instant? = null
+    @Column(name = "last_login_at", nullable = false)
+    var lastLoginAt: Instant = lastLoginAt
+        private set
+
+    /**
+     * 마지막 로그인 기준으로 갱신
+     */
+    fun updateToLastLogin(newLastLoginAt: Instant) {
+        this.lastLoginAt = newLastLoginAt
+    }
+
+    /**
+     * 이메일 변경
+     */
+    fun changeEmail(email: String) {
+        this.email = email
+    }
 }
