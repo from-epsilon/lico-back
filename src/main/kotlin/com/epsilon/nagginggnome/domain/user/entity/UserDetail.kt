@@ -8,6 +8,7 @@ import java.util.*
     name = "user_details"
 )
 class UserDetail(
+    user: User,
     nickname: String,
     coreValue: String,
     motive: String,
@@ -35,7 +36,7 @@ class UserDetail(
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
     @JoinColumn(name = "user_id", nullable = false)
-    var user: User? = null
+    var user: User = user
         private set
 
     /**
@@ -86,12 +87,4 @@ class UserDetail(
     @Column(name = "wake_time", nullable = false)
     var wakeTime: Int = wakeTime
         private set
-
-    /**
-     * 양방향 동기화를 위한 내부용 메서드
-     * - User.attachDetail에서만 호출되도록 사용하는 편이 안전함
-     */
-    fun attachUser(user: User) {
-        this.user = user
-    }
 }
