@@ -62,11 +62,13 @@ class GoogleAuthService(
      */
     private fun login(user: User, emailAtProvider: String?, now: Instant): SocialLoginResponse {
         // 로그인 시각 갱신
-        user.lastLoginAt = now
+        user.updateToLastLogin(now)
 
         // 사용자 이메일이 비어있고 provider 이메일이 있으면 보정
         if (user.email.isNullOrBlank()) {
-            user.email = emailAtProvider?.takeIf { it.isNotBlank() }
+            emailAtProvider
+                ?.takeIf { it.isNotBlank() }
+                ?.let(user::changeEmail)
         }
 
         // 토큰 발급 및 응답 생성
@@ -79,20 +81,22 @@ class GoogleAuthService(
     private fun signUp(providerUserId: String, emailAtProvider: String?, now: Instant): SocialLoginResponse =
         try {
             // 신규 유저 생성 및 저장
-            val newUser = User().apply {
-                email = emailAtProvider
-                lastLoginAt = now
-            }
-            userRepository.save(newUser)
+            val newUser = userRepository.save(
+                User(
+                    email = emailAtProvider,
+                    lastLoginAt = now
+                )
+            )
 
             // 소셜 계정 연결 엔티티 생성 및 저장
-            val socialAccount = UserSocialAccount(
-                user = newUser,
-                provider = SocialProvider.GOOGLE,
-                providerUserId = providerUserId,
-                emailAtProvider = emailAtProvider
+            userSocialAccountRepository.save(
+                UserSocialAccount(
+                    user = newUser,
+                    provider = SocialProvider.GOOGLE,
+                    providerUserId = providerUserId,
+                    emailAtProvider = emailAtProvider
+                )
             )
-            userSocialAccountRepository.save(socialAccount)
 
             // 토큰 발급 및 응답 생성
             issueTokens(newUser, isNewUser = true, now)
