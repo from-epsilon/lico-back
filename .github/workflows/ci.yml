@@ -36,24 +36,33 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 테스트 및 bootJar를 단 한 번 수행하여 산출물(app.jar)을 생성
-      - name: Test + bootJar (single build)
+      # PR: 테스트만 수행
+      - name: Test (PR only)
+        if: github.event_name == 'pull_request'
+        run: ./gradlew --no-daemon test
+
+      # push(main/develop): 테스트 + bootJar 단 한 번 수행
+      - name: Test + bootJar (push only)
+        if: github.event_name != 'pull_request'
         run: ./gradlew --no-daemon test bootJar
 
-      # CI 산출물(app.jar) 존재 여부를 강제 확인
-      - name: Verify app.jar exists
+      # push에서만 산출물 검증
+      - name: Verify app.jar exists (push only)
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
           ls -lah build/libs || true
           test -f build/libs/app.jar
 
-      # Docker Buildx 설정
-      - name: Set up Docker Buildx
+      # Docker Buildx 설정 (push에서만)
+      - name: Set up Docker Buildx (push only)
+        if: github.event_name != 'pull_request'
         uses: docker/setup-buildx-action@v3
 
-      # 브랜치별 태그 정책 설정
-      - name: Set image tags by branch
+      # 브랜치별 태그 정책 설정 (push에서만)
+      - name: Set image tags by branch (push only)
+        if: github.event_name != 'pull_request'
         id: vars
         shell: bash
         run: |
@@ -73,8 +82,9 @@ jobs:
             echo "latest_tag=ci-latest" >> "${GITHUB_OUTPUT}"
           fi
 
-      # 이미지명 소문자로 정규화
-      - name: Prepare image name (lowercase)
+      # 이미지명 소문자로 정규화 (push에서만)
+      - name: Prepare image name (lowercase) (push only)
+        if: github.event_name != 'pull_request'
         id: image
         shell: bash
         run: |
@@ -82,8 +92,8 @@ jobs:
           IMAGE_NAME="$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           echo "name=${IMAGE_NAME}" >> "${GITHUB_OUTPUT}"
 
-      # PR에서는 푸시하지 않으므로 로그인 생략
-      - name: Login to GHCR
+      # GHCR 로그인 (push에서만)
+      - name: Login to GHCR (push only)
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
@@ -91,21 +101,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      # 이미지 빌드 + 푸시 (push에서만)
+      - name: Build and push image (push only)
+        if: github.event_name != 'pull_request'
         id: docker_build
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
             ${{ steps.image.outputs.name }}:${{ steps.vars.outputs.immutable_tag }}
             ${{ steps.image.outputs.name }}:${{ steps.vars.outputs.latest_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # infra 레포 CD 워크플로우를 트리거
-      - name: Trigger infra CD (dev/prod)
+      # infra 레포 CD 워크플로우 트리거 (push에서만, digest 전달)
+      - name: Trigger infra CD (push only)
         if: github.event_name != 'pull_request'
         shell: bash
         env:
@@ -116,13 +128,18 @@ jobs:
           BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          
-          if [[ "${BRANCH}" == "main" ]]; then DEPLOY_ENV="prod"
-          elif [[ "${BRANCH}" == "develop" ]]; then DEPLOY_ENV="dev"
-          else echo "Unsupported branch for CD: ${BRANCH}"; exit 1
+
+          if [[ "${BRANCH}" == "main" ]]; then
+            DEPLOY_ENV="prod"
+          elif [[ "${BRANCH}" == "develop" ]]; then
+            DEPLOY_ENV="dev"
+          else
+            echo "Unsupported branch for CD: ${BRANCH}"
+            exit 1
           fi
-          
+
           WORKFLOW_FILE="deploy.yml"
+
           curl -sS -X POST \
             -H "Authorization: Bearer ${TOKEN}" \
             -H "Accept: application/vnd.github+json" \
