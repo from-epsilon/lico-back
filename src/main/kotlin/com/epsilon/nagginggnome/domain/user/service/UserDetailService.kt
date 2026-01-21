@@ -2,7 +2,9 @@ package com.epsilon.nagginggnome.domain.user.service
 
 import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailCreateRequest
 import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailUpdateRequest
+import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailCreateResponse
 import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailGetResponse
+import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailUpdateResponse
 import com.epsilon.nagginggnome.domain.user.entity.UserDetail
 import com.epsilon.nagginggnome.domain.user.repository.UserDetailRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
@@ -30,9 +32,6 @@ class UserDetailService(
 
         return UserDetailGetResponse(
             nickname = userDetail.nickname,
-            coreValue = userDetail.coreValue,
-            motive = userDetail.motive,
-            selfImage = userDetail.selfImage,
             verbosityPerDay = userDetail.verbosityPerDay,
             sleepTime = userDetail.sleepTime,
             wakeTime = userDetail.wakeTime
@@ -45,7 +44,7 @@ class UserDetailService(
      * - 이미 detail이 있으면 409(USER_DETAIL_ALREADY_EXISTS)
      */
     @Transactional
-    fun createUserDetail(userId: UUID, req: UserDetailCreateRequest) {
+    fun createUserDetail(userId: UUID, req: UserDetailCreateRequest): UserDetailCreateResponse {
         val user = userRepository.findByIdOrNull(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
@@ -53,41 +52,49 @@ class UserDetailService(
             throw ApiException(UserErrorCode.USER_DETAIL_ALREADY_EXISTS)
         }
 
-        try {
+        val userDetail = try {
             userDetailRepository.save(
                 UserDetail(
                     user = user,
                     nickname = req.nickname,
-                    coreValue = req.coreValue,
-                    motive = req.motive,
-                    selfImage = req.selfImage,
                     verbosityPerDay = req.verbosityPerDay,
                     sleepTime = req.sleepTime,
                     wakeTime = req.wakeTime
                 )
             )
         } catch (_: DataIntegrityViolationException) {
-            // 레이스 컨디션으로 PK 중복이 발생할 수 있으므로 409로 매핑
+            // 동시 요청 레이스 컨디션으로 PK(user_id) 중복이 발생할 수 있으므로 409로 매핑
             throw ApiException(UserErrorCode.USER_DETAIL_ALREADY_EXISTS)
         }
+
+        return UserDetailCreateResponse(
+            nickname = userDetail.nickname,
+            verbosityPerDay = userDetail.verbosityPerDay,
+            sleepTime = userDetail.sleepTime,
+            wakeTime = userDetail.wakeTime
+        )
     }
 
     /**
      * 유저 상세 정보 수정
      */
     @Transactional
-    fun updateUserDetail(userId: UUID, req: UserDetailUpdateRequest) {
+    fun updateUserDetail(userId: UUID, req: UserDetailUpdateRequest): UserDetailUpdateResponse {
         val userDetail = userDetailRepository.findByIdOrNull(userId)
             ?: throw ApiException(UserErrorCode.USER_DETAIL_NOT_FOUND)
 
-        userDetail.update(
+        userDetail.patch(
             nickname = req.nickname,
-            coreValue = req.coreValue,
-            motive = req.motive,
-            selfImage = req.selfImage,
             verbosityPerDay = req.verbosityPerDay,
             sleepTime = req.sleepTime,
             wakeTime = req.wakeTime
+        )
+
+        return UserDetailUpdateResponse(
+            nickname = userDetail.nickname,
+            verbosityPerDay = userDetail.verbosityPerDay,
+            sleepTime = userDetail.sleepTime,
+            wakeTime = userDetail.wakeTime
         )
     }
 }

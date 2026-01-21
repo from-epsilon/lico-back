@@ -2,7 +2,9 @@ package com.epsilon.nagginggnome.domain.user.controller
 
 import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailCreateRequest
 import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailUpdateRequest
+import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailCreateResponse
 import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailGetResponse
+import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailUpdateResponse
 import com.epsilon.nagginggnome.domain.user.service.UserDetailService
 import com.epsilon.nagginggnome.global.constant.code.CommonSuccessCode
 import com.epsilon.nagginggnome.global.dto.response.ApiResponse
@@ -29,17 +31,17 @@ class UserDetailController(
     fun createUserDetail(
         @AuthenticationPrincipal userId: UUID,
         @RequestBody req: UserDetailCreateRequest
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        userDetailService.createUserDetail(userId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+    ): ResponseEntity<ApiResponse<UserDetailCreateResponse>> {
+        val res = userDetailService.createUserDetail(userId, req)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 
     @PatchMapping
     fun updateUserDetail(
         @AuthenticationPrincipal userId: UUID,
         @RequestBody req: UserDetailUpdateRequest
-    ): ResponseEntity<ApiResponse<Nothing>> {
-        userDetailService.updateUserDetail(userId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+    ): ResponseEntity<ApiResponse<UserDetailUpdateResponse>> {
+        val res = userDetailService.updateUserDetail(userId, req)
+        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 }
