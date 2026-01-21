@@ -9,13 +9,13 @@ import java.util.*
 )
 class UserDetail(
     user: User,
-    nickname: String,
-    coreValue: String,
-    motive: String,
-    selfImage: String,
-    verbosityPerDay: Double,
-    sleepTime: Int,
-    wakeTime: Int
+    nickname: String?,
+    coreValue: String?,
+    motive: String?,
+    selfImage: String?,
+    verbosityPerDay: Double?,
+    sleepTime: Int?,
+    wakeTime: Int?
 ) {
 
     /**
@@ -42,60 +42,60 @@ class UserDetail(
     /**
      * 별명
      */
-    @Column(name = "nickname", nullable = false)
-    var nickname: String = nickname
+    @Column(name = "nickname")
+    var nickname: String? = nickname
         private set
 
     /**
      * 가치관
      */
-    @Column(name = "core_value", nullable = false)
-    var coreValue: String = coreValue
+    @Column(name = "core_value")
+    var coreValue: String? = coreValue
         private set
 
     /**
      * 동기
      */
-    @Column(name = "motive", nullable = false)
-    var motive: String = motive
+    @Column(name = "motive")
+    var motive: String? = motive
         private set
 
     /**
      * 자아상
      */
-    @Column(name = "self_image", nullable = false)
-    var selfImage: String = selfImage
+    @Column(name = "self_image")
+    var selfImage: String? = selfImage
         private set
 
     /**
      * 하루 알림 강도
      */
-    @Column(name = "verbosity_per_day", nullable = false)
-    var verbosityPerDay: Double = verbosityPerDay
+    @Column(name = "verbosity_per_day")
+    var verbosityPerDay: Double? = verbosityPerDay
         private set
 
     /**
      * 취침 시간
      */
-    @Column(name = "sleep_time", nullable = false)
-    var sleepTime: Int = sleepTime
+    @Column(name = "sleep_time")
+    var sleepTime: Int? = sleepTime
         private set
 
     /**
      * 기상 시간
      */
-    @Column(name = "wake_time", nullable = false)
-    var wakeTime: Int = wakeTime
+    @Column(name = "wake_time")
+    var wakeTime: Int? = wakeTime
         private set
 
     fun update(
-        nickname: String,
-        coreValue: String,
-        motive: String,
-        selfImage: String,
-        verbosityPerDay: Double,
-        sleepTime: Int,
-        wakeTime: Int
+        nickname: String?,
+        coreValue: String?,
+        motive: String?,
+        selfImage: String?,
+        verbosityPerDay: Double?,
+        sleepTime: Int?,
+        wakeTime: Int?
     ) {
         this.nickname = nickname
         this.coreValue = coreValue
