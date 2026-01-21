@@ -1,6 +1,6 @@
 CREATE TABLE public.user_details (
     user_id uuid NOT NULL,
-    nickname character varying(255),
+    nickname character varying(255) NOT NULL,
     core_value text NOT NULL,
     motive text NOT NULL,
     self_image text NOT NULL,
