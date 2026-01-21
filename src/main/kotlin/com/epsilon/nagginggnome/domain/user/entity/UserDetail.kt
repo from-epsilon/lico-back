@@ -88,7 +88,7 @@ class UserDetail(
     var wakeTime: Int? = wakeTime
         private set
 
-    fun update(
+    fun patch(
         nickname: String?,
         coreValue: String?,
         motive: String?,
@@ -97,12 +97,12 @@ class UserDetail(
         sleepTime: Int?,
         wakeTime: Int?
     ) {
-        this.nickname = nickname
-        this.coreValue = coreValue
-        this.motive = motive
-        this.selfImage = selfImage
-        this.verbosityPerDay = verbosityPerDay
-        this.sleepTime = sleepTime
-        this.wakeTime = wakeTime
+        nickname?.let { this.nickname = it }
+        coreValue?.let { this.coreValue = it }
+        motive?.let { this.motive = it }
+        selfImage?.let { this.selfImage = it }
+        verbosityPerDay?.let { this.verbosityPerDay = it }
+        sleepTime?.let { this.sleepTime = it }
+        wakeTime?.let { this.wakeTime = it }
     }
 }
