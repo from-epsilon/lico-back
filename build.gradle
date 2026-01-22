@@ -5,6 +5,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.asciidoctor.jvm.convert' version '4.0.5'
     id 'org.jetbrains.kotlin.plugin.jpa' version '2.2.21'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.29'
 }
 
 group = 'com.epsilon'
@@ -50,6 +51,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:9.7.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
 
+    jooqCodegen 'org.postgresql:postgresql'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
@@ -74,6 +77,42 @@ kotlin {
     }
 }
 
+def jooqGeneratedDirFile = layout.buildDirectory
+        .dir("generated-src/jooq/main")
+        .get()
+        .asFile
+
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = System.getenv('DB_URL')
+            user = System.getenv('DB_USERNAME')
+            password = System.getenv('DB_PASSWORD')
+        }
+
+        generator {
+            name = 'org.jooq.codegen.KotlinGenerator'
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'public'
+                includes = 'push_jobs'
+                excludes = 'flyway_schema_history'
+            }
+            target {
+                directory = jooqGeneratedDirFile.absolutePath
+                packageName = "com.epsilon.nagginggnome.jooq"
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        kotlin.srcDir(jooqGeneratedDirFile.absolutePath)
+    }
+}
+
 tasks.named('test') {
     outputs.dir snippetsDir
     failOnNoDiscoveredTests = false
@@ -83,4 +122,8 @@ tasks.named('test') {
 tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     dependsOn test
+}
+
+tasks.named('compileKotlin') {
+    dependsOn tasks.named('jooqCodegen')
 }
