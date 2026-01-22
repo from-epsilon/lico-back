@@ -1,11 +1,11 @@
 package com.epsilon.nagginggnome.domain.user.controller
 
-import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailCreateRequest
-import com.epsilon.nagginggnome.domain.user.dto.request.UserDetailUpdateRequest
-import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailCreateResponse
-import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailGetResponse
-import com.epsilon.nagginggnome.domain.user.dto.response.UserDetailUpdateResponse
-import com.epsilon.nagginggnome.domain.user.service.UserDetailService
+import com.epsilon.nagginggnome.domain.user.dto.request.UserSettingCreateRequest
+import com.epsilon.nagginggnome.domain.user.dto.request.UserSettingUpdateRequest
+import com.epsilon.nagginggnome.domain.user.dto.response.UserSettingCreateResponse
+import com.epsilon.nagginggnome.domain.user.dto.response.UserSettingGetResponse
+import com.epsilon.nagginggnome.domain.user.dto.response.UserSettingUpdateResponse
+import com.epsilon.nagginggnome.domain.user.service.UserSettingService
 import com.epsilon.nagginggnome.global.constant.code.CommonSuccessCode
 import com.epsilon.nagginggnome.global.dto.response.ApiResponse
 import org.springframework.http.ResponseEntity
@@ -14,34 +14,34 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/v1/users/details")
-class UserDetailController(
-    private val userDetailService: UserDetailService
+@RequestMapping("/v1/users/settings")
+class UserSettingController(
+    private val userSettingService: UserSettingService
 ) {
 
     @GetMapping
-    fun getUserDetail(
+    fun getUserSetting(
         @AuthenticationPrincipal userId: UUID
-    ): ResponseEntity<ApiResponse<UserDetailGetResponse>> {
-        val res = userDetailService.getUserDetail(userId)
+    ): ResponseEntity<ApiResponse<UserSettingGetResponse>> {
+        val res = userSettingService.getUserSetting(userId)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 
     @PostMapping
-    fun createUserDetail(
+    fun createUserSetting(
         @AuthenticationPrincipal userId: UUID,
-        @RequestBody req: UserDetailCreateRequest
-    ): ResponseEntity<ApiResponse<UserDetailCreateResponse>> {
-        val res = userDetailService.createUserDetail(userId, req)
+        @RequestBody req: UserSettingCreateRequest
+    ): ResponseEntity<ApiResponse<UserSettingCreateResponse>> {
+        val res = userSettingService.createUserSetting(userId, req)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 
     @PatchMapping
-    fun updateUserDetail(
+    fun updateUserSetting(
         @AuthenticationPrincipal userId: UUID,
-        @RequestBody req: UserDetailUpdateRequest
-    ): ResponseEntity<ApiResponse<UserDetailUpdateResponse>> {
-        val res = userDetailService.updateUserDetail(userId, req)
+        @RequestBody req: UserSettingUpdateRequest
+    ): ResponseEntity<ApiResponse<UserSettingUpdateResponse>> {
+        val res = userSettingService.updateUserSetting(userId, req)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
 }

@@ -1,9 +1,9 @@
 package com.epsilon.nagginggnome.domain.user.dto.request
 
 /**
- * 유저 상세 정보 수정 요청 DTO
+ * 유저 설정 정보 수정 요청 DTO
  */
-data class UserDetailUpdateRequest(
+data class UserSettingUpdateRequest(
     val nickname: String?,
     val verbosityPerDay: Double?,
     val sleepTime: Int?,

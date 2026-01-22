@@ -21,20 +21,20 @@ enum class UserErrorCode(
     ),
 
     /**
-     * 유저의 상세 정보를 찾지 못한 경우
+     * 유저의 설정 정보를 찾지 못한 경우
      */
-    USER_DETAIL_NOT_FOUND(
-        code = "USER_DETAIL_404_NOT_FOUND",
+    USER_SETTING_NOT_FOUND(
+        code = "USER_SETTING_404_NOT_FOUND",
         status = HttpStatus.NOT_FOUND,
-        message = "User's detail not found."
+        message = "User's setting not found."
     ),
 
     /**
-     * 유저의 상세 정보가 존재하는데 생성하려는 경우
+     * 유저의 설정 정보가 존재하는데 생성하려는 경우
      */
-    USER_DETAIL_ALREADY_EXISTS(
-        code = "USER_DETAIL_409_CONFLICT",
+    USER_SETTING_ALREADY_EXISTS(
+        code = "USER_SETTING_409_CONFLICT",
         status = HttpStatus.CONFLICT,
-        message = "User's detail already exists."
+        message = "User's setting already exists."
     )
 }
