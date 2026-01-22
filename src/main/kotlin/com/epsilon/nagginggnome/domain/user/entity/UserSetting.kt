@@ -12,10 +12,10 @@ import java.util.*
 )
 class UserSetting(
     user: User,
-    nickname: String? = null,
-    verbosityPerDay: Double? = null,
-    sleepTime: Int? = null,
-    wakeTime: Int? = null
+    nickname: String,
+    verbosityPerDay: Double,
+    sleepTime: Int,
+    wakeTime: Int
 ) {
 
     /**
@@ -43,28 +43,28 @@ class UserSetting(
      * 별명
      */
     @Column(name = "nickname")
-    var nickname: String? = nickname
+    var nickname: String = nickname
         private set
 
     /**
      * 하루 알림 강도
      */
     @Column(name = "verbosity_per_day")
-    var verbosityPerDay: Double? = verbosityPerDay
+    var verbosityPerDay: Double = verbosityPerDay
         private set
 
     /**
      * 취침 시간
      */
     @Column(name = "sleep_time")
-    var sleepTime: Int? = sleepTime
+    var sleepTime: Int = sleepTime
         private set
 
     /**
      * 기상 시간
      */
     @Column(name = "wake_time")
-    var wakeTime: Int? = wakeTime
+    var wakeTime: Int = wakeTime
         private set
 
     fun patch(
