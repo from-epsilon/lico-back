@@ -68,7 +68,12 @@ class FcmTokenService(
      * - 하드 딜리트
      */
     @Transactional
-    fun deleteFcmToken(userId: UUID) {
+    fun deleteFcmTokensByUserId(userId: UUID) {
         fcmTokenRepository.deleteByUserId(userId)
+    }
+
+    @Transactional
+    fun deleteFcmTokenByToken(token: String) {
+        fcmTokenRepository.deleteByToken(token)
     }
 }
