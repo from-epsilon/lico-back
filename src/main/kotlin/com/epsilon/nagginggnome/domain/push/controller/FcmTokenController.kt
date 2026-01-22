@@ -31,7 +31,7 @@ class FcmTokenController(
     fun deleteToken(
         @AuthenticationPrincipal userId: UUID
     ): ResponseEntity<ApiResponse<Nothing>> {
-        fcmTokenService.deleteFcmToken(userId)
+        fcmTokenService.deleteFcmTokensByUserId(userId)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
     }
 }
