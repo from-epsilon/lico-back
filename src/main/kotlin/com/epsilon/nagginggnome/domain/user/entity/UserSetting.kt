@@ -4,18 +4,15 @@ import jakarta.persistence.*
 import java.util.*
 
 /**
- * 유저 상세 정보 엔티티
+ * 유저 설정 정보 엔티티
  */
 @Entity
 @Table(
-    name = "user_details"
+    name = "user_settings"
 )
-class UserDetail(
+class UserSetting(
     user: User,
     nickname: String? = null,
-    coreValue: String? = null,
-    motive: String? = null,
-    selfImage: String? = null,
     verbosityPerDay: Double? = null,
     sleepTime: Int? = null,
     wakeTime: Int? = null
@@ -34,7 +31,7 @@ class UserDetail(
     /**
      * 1:1 연관관계 주인(owning side)
      * - @JoinColumn(user_id)가 FK 컬럼
-     * - @MapsId로 User PK를 UserDetail PK로 공유
+     * - @MapsId로 User PK를 UserSetting PK로 공유
      */
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
@@ -47,27 +44,6 @@ class UserDetail(
      */
     @Column(name = "nickname")
     var nickname: String? = nickname
-        private set
-
-    /**
-     * 가치관
-     */
-    @Column(name = "core_value")
-    var coreValue: String? = coreValue
-        private set
-
-    /**
-     * 동기
-     */
-    @Column(name = "motive")
-    var motive: String? = motive
-        private set
-
-    /**
-     * 자아상
-     */
-    @Column(name = "self_image")
-    var selfImage: String? = selfImage
         private set
 
     /**
@@ -93,17 +69,11 @@ class UserDetail(
 
     fun patch(
         nickname: String? = null,
-        coreValue: String? = null,
-        motive: String? = null,
-        selfImage: String? = null,
         verbosityPerDay: Double? = null,
         sleepTime: Int? = null,
         wakeTime: Int? = null
     ) {
         nickname?.let { this.nickname = it }
-        coreValue?.let { this.coreValue = it }
-        motive?.let { this.motive = it }
-        selfImage?.let { this.selfImage = it }
         verbosityPerDay?.let { this.verbosityPerDay = it }
         sleepTime?.let { this.sleepTime = it }
         wakeTime?.let { this.wakeTime = it }
