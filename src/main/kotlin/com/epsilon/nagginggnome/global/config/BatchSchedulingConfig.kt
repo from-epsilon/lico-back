@@ -28,6 +28,7 @@ class BatchSchedulingConfig(
         return JdbcTemplateLockProvider(
             JdbcTemplateLockProvider.Configuration.builder()
                 .withJdbcTemplate(jdbcTemplate)
+                .withTableName("public.shedlock")
                 .usingDbTime()
                 .build()
         )
