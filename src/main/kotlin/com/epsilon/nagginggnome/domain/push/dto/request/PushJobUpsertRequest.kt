@@ -22,6 +22,6 @@ data class PushJobUpsertRequest(
         @JsonProperty("scheduledAtUtc")
         val scheduledAt: Instant,
         val kind: String,
-        val planId: String?
+        val planId: Long? // UUID면 바꿔야 함
     )
 }
