@@ -3,7 +3,6 @@ package com.epsilon.nagginggnome.domain.push.repository
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
-import com.epsilon.nagginggnome.domain.push.repository.model.PushJobRangeModel
 import java.time.Instant
 import java.util.*
 
@@ -13,15 +12,20 @@ import java.util.*
 interface PushJobRepository {
 
     /**
+     * 배치 키를 멱등하게 삽입
+     */
+    fun tryInsertBatchKey(userId: UUID, batchId: UUID): Boolean
+
+    /**
      * 특정 유저의 특정 시간 범위에 있는 READY 작업을 삭제
      * - range 덮어쓰기(upsert) 시 기존 스케줄 제거
      */
-    fun deleteReadyByUserAndRange(userId: UUID, range: PushJobRangeModel): Int
+    fun deletePushJobByUserAndRange(userId: UUID, from: Instant, to: Instant): Int
 
     /**
      * 작업을 대량으로 생성
      */
-    fun insertBatch(models: List<PushJobCreateModel>): Int
+    fun insertPushJob(userId: UUID, batchId: UUID, models: List<PushJobCreateModel>): Int
 
     /**
      * 처리 가능한 READY 작업을 락으로 조회
