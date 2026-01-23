@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.domain.push.repository.impl
 
+import com.epsilon.nagginggnome.domain.push.constant.MessageKind
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
@@ -70,7 +71,7 @@ class PushJobJooqRepository(
         val chunkSize = 500
 
         return models.chunked(chunkSize).sumOf { chunk ->
-            val recods = chunk.map { model ->
+            val records = chunk.map { model ->
                 dsl.newRecord(PUSH_JOBS).apply {
                     set(PUSH_JOBS.USER_ID, userId)
                     set(PUSH_JOBS.BATCH_ID, batchId)
@@ -83,7 +84,7 @@ class PushJobJooqRepository(
                     set(PUSH_JOBS.SCHEDULED_AT, model.scheduledAt)
                 }
             }
-            dsl.batchInsert(recods).execute().sum()
+            dsl.batchInsert(records).execute().sum()
         }
     }
 
@@ -94,7 +95,33 @@ class PushJobJooqRepository(
         now: Instant,
         limit: Int
     ): List<PushJobProcessingModel> {
-        TODO("Not yet implemented")
+        if (limit <= 0) {
+            return emptyList()
+        }
+        return dsl
+            .selectFrom(PUSH_JOBS)
+            .where(
+                PUSH_JOBS.STATUS.eq(PushJobStatus.READY.name)
+                    .and(PUSH_JOBS.SCHEDULED_AT.le(now))
+            )
+            .orderBy(PUSH_JOBS.SCHEDULED_AT.asc(), PUSH_JOBS.ID.asc())
+            .limit(limit)
+            .forUpdate()
+            .skipLocked()
+            .fetch { rec ->
+                val dataJsonString: String? = rec.get(PUSH_JOBS.DATA_JSON)?.data()
+                PushJobProcessingModel(
+                    id = requireNotNull(rec.id),
+                    userId = rec.userId,
+                    planId = rec.planId,
+                    kind = MessageKind.valueOf(rec.kind),
+                    title = rec.title,
+                    body = rec.body,
+                    dataJson = dataJsonString,
+                    scheduledAt = rec.scheduledAt,
+                    status = PushJobStatus.valueOf(requireNotNull(rec.status))
+                )
+            }
     }
 
     /**
