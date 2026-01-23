@@ -41,10 +41,19 @@ jobs:
         if: github.event_name == 'pull_request'
         run: ./gradlew --no-daemon test
 
-      # push(main/develop): 테스트 + bootJar 단 한 번 수행
-      - name: Test + bootJar (push only)
+      # PR: 코드젠 + 테스트 수행
+      - name: Generate jOOQ + Test (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon generateJooqDsl test
+
+      # push(main/develop): 코드젠 + 테스트 + bootJar 단 한 번 수행
+      - name: Generate jOOQ + Test + bootJar (push only)
         if: github.event_name != 'pull_request'
-        run: ./gradlew --no-daemon test bootJar
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon generateJooqDsl test bootJar
 
       # push에서만 산출물 검증
       - name: Verify app.jar exists (push only)
