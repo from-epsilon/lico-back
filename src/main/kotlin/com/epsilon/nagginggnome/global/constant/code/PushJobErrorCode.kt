@@ -19,4 +19,13 @@ enum class PushJobErrorCode(
         status = HttpStatus.BAD_REQUEST,
         message = "Invalid message kind."
     ),
+
+    /**
+     * 대상 사용자에 대한 FCM 토큰을 찾지 못한 경우
+     */
+    FCM_TOKEN_NOT_FOUND(
+        code = "PUSHJOB_404_FCM_TOKEN_NOT_FOUND",
+        status = HttpStatus.NOT_FOUND,
+        message = "FCM token not found."
+    ),
 }

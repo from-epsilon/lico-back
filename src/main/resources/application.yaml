@@ -40,7 +40,6 @@ social:
 fcm:
   credentialsPath: ${FCM_CREDENTIALS_PATH:}
 
-
 security:
   token-hash:
     pepper: ${TOKEN_HASH_PEPPER}

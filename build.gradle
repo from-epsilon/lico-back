@@ -63,6 +63,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     implementation 'com.google.firebase:firebase-admin:9.7.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:7.5.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:7.5.0'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

@@ -56,6 +56,11 @@ object JooqDslGenerator {
                                             .withIncludeTypes("(?i:timestamp with time zone|timestamptz)")
                                     )
                                 )
+                        ).withGenerate(
+                            Generate()
+                                .withKotlinNotNullRecordAttributes(true)
+                                .withKotlinNotNullPojoAttributes(true)
+                                .withKotlinNotNullInterfaceAttributes(true)
                         )
                         .withTarget(
                             Target()
