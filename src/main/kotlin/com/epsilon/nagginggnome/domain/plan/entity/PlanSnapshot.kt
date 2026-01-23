@@ -1,15 +1,14 @@
 package com.epsilon.nagginggnome.domain.plan.entity
 
-import com.epsilon.nagginggnome.global.entity.BaseEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
+import tools.jackson.databind.JsonNode
 import java.time.Instant
+import java.util.*
 
 /**
  * plan_snapshots 테이블 매핑 엔티티
- *
- * 역할
- * - 플랜 내용의 스냅샷 저장
- * - 버전 단조 증가(1씩 증가) 정책에 따른 이력 관리
  */
 @Entity
 @Table(
@@ -19,89 +18,50 @@ import java.time.Instant
             name = "uk_plan_snapshots_plan_id_version",
             columnNames = ["plan_id", "version"]
         )
-    ],
-    indexes = [
-        Index(name = "idx_plan_snapshots_plan_id_version", columnList = "plan_id, version")
     ]
 )
-@SequenceGenerator(
-    name = "plan_snapshot_seq",
-    sequenceName = "plan_snapshot_seq",
-)
 class PlanSnapshot(
-    plan: Plan,
+    snapshotId: UUID,
+    planId: UUID,
     version: Int,
-    action: String,
-    rrule: String,
-    dtstart: Instant,
-    purpose: String? = null,
-    motive: String? = null,
-    memo: String? = null
-) : BaseEntity() {
+    dataJson: JsonNode,
+    snapshotAt: Instant = Instant.now(),
+) {
 
     /**
      * 고유 ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plan_snapshot_seq")
-    @Column(name = "id", nullable = false, updatable = false)
-    var id: Long? = null
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
+    var id: UUID = snapshotId
         private set
 
     /**
-     * 플랜
+     * 플랜 ID
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "plan_id", nullable = false)
-    var plan: Plan = plan
+    @Column(name = "plan_id", nullable = false, columnDefinition = "uuid")
+    var planId: UUID = planId
         private set
 
     /**
-     * 플랜 버전
+     * 스냅샷 버전
      */
     @Column(name = "version", nullable = false)
     var version: Int = version
         private set
 
     /**
-     * 행동
+     * 변경 직후의 플랜 전체 데이터(JSONB)
      */
-    @Column(name = "action", nullable = false)
-    var action: String = action
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "data_json", nullable = false, columnDefinition = "jsonb")
+    var dataJson: JsonNode = dataJson
         private set
 
     /**
-     * 반복 규칙
+     * 스냅샷 생성 시점
      */
-    @Column(name = "rrule", nullable = false)
-    var rrule: String = rrule
-        private set
-
-    /**
-     * 시작 시각
-     */
-    @Column(name = "dtstart", nullable = false)
-    var dtstart: Instant = dtstart
-        private set
-
-    /**
-     * 목적
-     */
-    @Column(name = "purpose")
-    var purpose: String? = purpose
-        private set
-
-    /**
-     * 동기
-     */
-    @Column(name = "motive", columnDefinition = "text")
-    var motive: String? = motive
-        private set
-
-    /**
-     * 메모
-     */
-    @Column(name = "memo", columnDefinition = "text")
-    var memo: String? = memo
+    @Column(name = "snapshot_at", nullable = false)
+    var snapshotAt: Instant = snapshotAt
         private set
 }

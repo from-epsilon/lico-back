@@ -3,6 +3,7 @@ package com.epsilon.nagginggnome.domain.message.entity
 import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
 import com.epsilon.nagginggnome.global.entity.BaseEntity
 import jakarta.persistence.*
+import java.util.*
 
 /**
  * chat_messages 테이블 매핑 엔티티
@@ -10,17 +11,14 @@ import jakarta.persistence.*
 @Entity
 @Table(
     name = "chat_messages",
-    indexes = [
-        Index(name = "idx_chat_messages_plan_id_created_at", columnList = "plan_id, created_at")
-    ]
 )
 @SequenceGenerator(
     name = "chat_message_seq",
     sequenceName = "chat_message_seq"
 )
 class ChatMessage(
-    planId: Long,
-    snapshotId: Long,
+    planId: UUID,
+    snapshotId: UUID,
     snapshotVersion: Int,
     content: String,
     type: ChatMessageType
@@ -38,15 +36,15 @@ class ChatMessage(
     /**
      * 메시지가 발생된 플랜 ID
      */
-    @Column(name = "plan_id", nullable = false)
-    var planId: Long = planId
+    @Column(name = "plan_id", nullable = false, columnDefinition = "uuid")
+    var planId: UUID = planId
         private set
 
     /**
      * 메시지가 발생된 스냅샷 ID
      */
-    @Column(name = "snapshot_id", nullable = false)
-    var snapshotId: Long = snapshotId
+    @Column(name = "snapshot_id", nullable = false, columnDefinition = "uuid")
+    var snapshotId: UUID = snapshotId
         private set
 
     /**
