@@ -2,10 +2,7 @@ package com.epsilon.nagginggnome.build
 
 import org.flywaydb.core.Flyway
 import org.jooq.codegen.GenerationTool
-import org.jooq.meta.jaxb.Configuration
-import org.jooq.meta.jaxb.Database
-import org.jooq.meta.jaxb.Generator
-import org.jooq.meta.jaxb.Jdbc
+import org.jooq.meta.jaxb.*
 import org.jooq.meta.jaxb.Target
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -49,6 +46,16 @@ object JooqDslGenerator {
                                 .withInputSchema("public")
                                 .withIncludes("push_.*")
                                 .withExcludes("flyway_schema_history")
+                                .withForcedTypes(
+                                    listOf(
+                                        ForcedType()
+                                            .withUserType("java.time.Instant")
+                                            .withConverter(
+                                                "com.epsilon.nagginggnome.global.jooq.converter.OffsetDateTimeToInstantConverter"
+                                            )
+                                            .withIncludeTypes("(?i:timestamp with time zone|timestamptz)")
+                                    )
+                                )
                         )
                         .withTarget(
                             Target()
