@@ -25,7 +25,7 @@ class ChatMessageService(
      */
     @Transactional
     fun appendChatMessage(
-        planId: Long,
+        planId: UUID,
         snapshotId: Long,
         snapshotVersion: Int,
         content: String,
@@ -43,7 +43,7 @@ class ChatMessageService(
     }
 
     @Transactional
-    fun appendUserReply(userId: UUID, planId: Long, req: ChatMessageCreateRequest) {
+    fun appendUserReply(userId: UUID, planId: UUID, req: ChatMessageCreateRequest) {
         // 소유권 검증
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
@@ -66,7 +66,7 @@ class ChatMessageService(
     }
 
     @Transactional(readOnly = true)
-    fun getPlanChatMessages(userId: UUID, planId: Long, pageable: Pageable): Page<ChatMessageListItemResponse> {
+    fun getPlanChatMessages(userId: UUID, planId: UUID, pageable: Pageable): Page<ChatMessageListItemResponse> {
         // 소유권 검증
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)

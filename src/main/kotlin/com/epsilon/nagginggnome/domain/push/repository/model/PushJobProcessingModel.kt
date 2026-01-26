@@ -23,7 +23,7 @@ data class PushJobProcessingModel(
     /**
      * 플랜 ID
      */
-    val planId: Long?,
+    val planId: UUID?,
 
     /**
      * 메시지 종류
