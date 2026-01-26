@@ -17,5 +17,5 @@ data class PlanCreateRequest(
     val remind: Boolean,
     val leadTime: Int?,
     val version: Int,
-    val createdAt: Instant
+    val snapshotAt: Instant
 )

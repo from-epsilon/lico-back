@@ -24,6 +24,7 @@ class Plan(
     remind: Boolean = false,
     leadTime: Int? = null,
     currentVersion: Int = 0,
+    currentSnapshotAt: Instant = Instant.now(),
     status: PlanStatus = PlanStatus.ACTIVE,
 ) : BaseEntity() {
 
@@ -100,10 +101,17 @@ class Plan(
         private set
 
     /**
-     * 현재 버전
+     * 최근 스냅샷 버전
      */
     @Column(name = "current_version", nullable = false)
     var currentVersion: Int = currentVersion
+        private set
+
+    /**
+     * 최근 스냅샷 시점
+     */
+    @Column(name = "current_snapshot_at", nullable = false)
+    var currentSnapshotAt: Instant = currentSnapshotAt
         private set
 
     /**

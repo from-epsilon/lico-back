@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.dto.request
 
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 /**
  * 플랜 수정 요청 DTO
@@ -17,5 +17,5 @@ data class PlanUpdateRequest(
     val remind: Boolean?,
     val leadTime: Int?,
     val version: Int?,
-    val createdAt: Instant?
+    val snapshotAt: Instant?
 )
