@@ -1,10 +1,12 @@
 package com.epsilon.nagginggnome.domain.plan.dto.response
 
+import java.util.*
+
 /**
  * 플랜 수정 응답 DTO
  */
 data class PlanUpdateResponse(
-    val planId: Long,
-    val snapshotId: Long,
-    val snapshotVersion: Int
+    val planId: UUID,
+    val currentVersion: Int,
+    val updatedAt: java.time.Instant
 )
