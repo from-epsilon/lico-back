@@ -2,8 +2,7 @@ package com.epsilon.nagginggnome.domain.plan.controller
 
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpdateResponse
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpsertResponse
 import com.epsilon.nagginggnome.domain.plan.service.PlanService
 import com.epsilon.nagginggnome.global.constant.code.CommonSuccessCode
 import com.epsilon.nagginggnome.global.dto.response.ApiResponse
@@ -28,7 +27,7 @@ class PlanController(
     fun createPlan(
         @AuthenticationPrincipal userId: UUID,
         @RequestBody req: PlanCreateRequest
-    ): ResponseEntity<ApiResponse<PlanCreateResponse>> {
+    ): ResponseEntity<ApiResponse<PlanUpsertResponse>> {
         val res = planService.createPlan(userId, req)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }
@@ -41,7 +40,7 @@ class PlanController(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: UUID,
         @RequestBody req: PlanUpdateRequest
-    ): ResponseEntity<ApiResponse<PlanUpdateResponse>> {
+    ): ResponseEntity<ApiResponse<PlanUpsertResponse>> {
         val res = planService.updatePlan(userId, planId, req)
         return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
     }

@@ -1,7 +1,9 @@
 package com.epsilon.nagginggnome.domain.plan.entity
 
+import com.epsilon.nagginggnome.global.entity.BaseEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.annotations.UuidGenerator
 import org.hibernate.type.SqlTypes
 import tools.jackson.databind.JsonNode
 import java.time.Instant
@@ -21,19 +23,19 @@ import java.util.*
     ]
 )
 class PlanSnapshot(
-    snapshotId: UUID,
     planId: UUID,
     version: Int,
     dataJson: JsonNode,
     snapshotAt: Instant = Instant.now(),
-) {
+) : BaseEntity() {
 
     /**
      * 고유 ID
      */
     @Id
+    @UuidGenerator
     @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
-    var id: UUID = snapshotId
+    var id: UUID? = null
         private set
 
     /**

@@ -16,6 +16,6 @@ data class PlanUpdateRequest(
     val rrule: String?,
     val remind: Boolean?,
     val leadTime: Int?,
-    val version: Int?,
-    val snapshotAt: Instant?
+    val version: Int,
+    val snapshotAt: Instant
 )
