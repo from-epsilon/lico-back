@@ -1,14 +1,9 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
-import com.epsilon.nagginggnome.domain.message.constant.ChatMessageTexts
-import com.epsilon.nagginggnome.domain.message.constant.ChatMessageType
-import com.epsilon.nagginggnome.domain.message.service.ChatMessageService
+import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanCreateResponse
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanDetailResponse
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanListItemResponse
-import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpdateResponse
+import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpsertResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
@@ -17,11 +12,11 @@ import com.epsilon.nagginggnome.domain.user.repository.UserRepository
 import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.util.*
 
 @Service
@@ -29,164 +24,152 @@ class PlanService(
     private val userRepository: UserRepository,
     private val planRepository: PlanRepository,
     private val planSnapshotRepository: PlanSnapshotRepository,
-    private val chatMessageService: ChatMessageService
+    private val objectMapper: ObjectMapper
 ) {
 
     /**
-     * 내 플랜 목록 조회
-     */
-    @Transactional(readOnly = true)
-    fun getMyPlans(userId: UUID, pageable: Pageable): Page<PlanListItemResponse> {
-        return planRepository.findMyPlans(userId, pageable)
-    }
-
-    /**
-     * 플랜 상세 조회
-     */
-    @Transactional(readOnly = true)
-    fun getPlanDetail(userId: UUID, planId: Long): PlanDetailResponse {
-        return planRepository.findPlanDetail(userId, planId)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
-    }
-
-    /**
-     * 플랜 스냅샷 버전 목록 조회
-     */
-    @Transactional(readOnly = true)
-    fun getSnapshotVersions(userId: UUID, planId: Long): List<Int> {
-        return planSnapshotRepository.findSnapShotVersionsByPlan(userId, planId)
-    }
-
-    /**
-     * 플랜 특정 버전 상세 조회
-     */
-    @Transactional(readOnly = true)
-    fun getPlanSnapshotVersionDetail(userId: UUID, planId: Long, snapshotVersion: Int): PlanDetailResponse {
-        return planRepository.findPlanSnapshotVersionDetail(userId, planId, snapshotVersion)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
-    }
-
-    /**
-     * 플랜 생성, 스냅샷 생성
+     * 플랜 생성
      */
     @Transactional
-    fun createPlan(userId: UUID, req: PlanCreateRequest): PlanCreateResponse {
+    fun createPlan(userId: UUID, req: PlanCreateRequest): PlanUpsertResponse {
         val user = userRepository.findByIdOrNull(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
-        // 플랜 생성
-        val newPlan = planRepository.save(
-            Plan(
-                user = user
+        // 멱등 처리
+        planRepository.findByIdAndUserId(req.planId, userId)?.let { existing ->
+            return PlanUpsertResponse(
+                planId = existing.id,
+                version = existing.currentVersion,
+                snapshotAt = existing.currentSnapshotAt,
+                status = existing.status,
             )
-        )
-        val newPlanId = newPlan.id
-            ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
+        }
 
-        // 스냅샷 생성
-        val newSnapshot = planSnapshotRepository.save(
-            PlanSnapshot(
-                plan = newPlan,
-                version = 1,
-                action = req.action,
-                rrule = req.rrule,
-                dtstart = req.dtstart,
-                purpose = req.purpose,
-                motive = req.motive,
-                memo = req.memo
+        try {
+            // 플랜 생성
+            val newPlan = planRepository.save(
+                Plan(
+                    planId = req.planId,
+                    user = user,
+                    action = req.action,
+                    purpose = req.purpose,
+                    motive = req.motive,
+                    memo = req.memo,
+                    dtstart = req.dtstart,
+                    rrule = req.rrule,
+                    remind = req.remind,
+                    leadTime = req.leadTime,
+                    currentVersion = req.version,
+                    currentSnapshotAt = req.snapshotAt,
+                    status = PlanStatus.ACTIVE,
+                )
             )
-        )
-        val newSnapshotId = newSnapshot.id
-            ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
 
-        // 플랜 포인터 갱신
-        newPlan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
+            // 스냅샷 생성
+            planSnapshotRepository.save(
+                PlanSnapshot(
+                    planId = newPlan.id,
+                    version = newPlan.currentVersion,
+                    dataJson = objectMapper.valueToTree(newPlan),
+                    snapshotAt = newPlan.currentSnapshotAt
+                )
+            )
 
-        // 채팅 메시지 생성(플랜 생성)
-        chatMessageService.appendChatMessage(
-            planId = newPlanId,
-            snapshotId = newSnapshotId,
-            snapshotVersion = newSnapshot.version,
-            content = ChatMessageTexts.PLAN_CREATED,
-            type = ChatMessageType.PLAN_HISTORY
-        )
-
-        return PlanCreateResponse(
-            planId = newPlanId,
-            snapshotId = newSnapshotId,
-            snapshotVersion = newSnapshot.version
-        )
+            return PlanUpsertResponse(
+                planId = newPlan.id,
+                version = newPlan.currentVersion,
+                snapshotAt = newPlan.currentSnapshotAt,
+                status = newPlan.status,
+            )
+        } catch (_: DataIntegrityViolationException) {
+            // 레이스 컨디션 대응
+            planRepository.findByIdAndUserId(req.planId, userId)?.let { existing ->
+                return PlanUpsertResponse(
+                    planId = existing.id,
+                    version = existing.currentVersion,
+                    snapshotAt = existing.currentSnapshotAt,
+                    status = existing.status,
+                )
+            }
+            throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
+        }
     }
 
     /**
      * 플랜 수정, 다음 스냅샷 생성
      */
     @Transactional
-    fun updatePlan(userId: UUID, planId: Long, req: PlanUpdateRequest): PlanUpdateResponse {
-        // 기존 플랜 조회
+    fun updatePlan(userId: UUID, planId: UUID, req: PlanUpdateRequest): PlanUpsertResponse {
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
 
-        // 다음 스냅샷 버전
-        val newVersion = plan.currentSnapshotVersion + 1
+        // 요청 버전 검증 및 멱등 처리
+        val requestedVersion = req.version
+        val currentVersion = plan.currentVersion
 
-        // 다음 스냅샷 생성
-        val newSnapshot = planSnapshotRepository.save(
-            PlanSnapshot(
-                plan = plan,
-                version = newVersion,
-                action = req.action,
-                rrule = req.rrule,
-                dtstart = req.dtstart,
-                purpose = req.purpose,
-                motive = req.motive,
-                memo = req.memo
+        // 이미 지난 버전이면 적용 금지
+        if (requestedVersion < currentVersion) {
+            throw ApiException(PlanErrorCode.PLAN_VERSION_STALE)
+        }
+
+        // 멱등 재시도
+        if (requestedVersion == currentVersion) {
+            return PlanUpsertResponse(
+                planId = plan.id,
+                version = plan.currentVersion,
+                snapshotAt = plan.currentSnapshotAt,
+                status = plan.status,
             )
+        }
+
+        // "현재 + 1"이 아니면 누락/순서 꼬임으로 판단
+        // expectedVersion(currentVersion + 1)부터 재전송하도록 유도
+        if (requestedVersion != currentVersion + 1) {
+            throw ApiException(PlanErrorCode.PLAN_VERSION_GAP)
+        }
+
+        // 플랜 수정
+        plan.patch(
+            action = req.action,
+            purpose = req.purpose,
+            motive = req.motive,
+            memo = req.memo,
+            dtstart = req.dtstart,
+            rrule = req.rrule,
+            remind = req.remind,
+            leadTime = req.leadTime,
+            nextVersion = requestedVersion,
+            nextSnapshotAt = req.snapshotAt
         )
-        val newSnapshotId = newSnapshot.id
-            ?: throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
 
-        // 플랜 포인터 갱신
-        plan.pointToSnapshot(snapshotId = newSnapshotId, snapshotVersion = newSnapshot.version)
-
-        // 채팅 메시지 생성(플랜 수정)
-        chatMessageService.appendChatMessage(
-            planId = planId,
-            snapshotId = newSnapshotId,
-            snapshotVersion = newSnapshot.version,
-            content = ChatMessageTexts.PLAN_UPDATED,
-            type = ChatMessageType.PLAN_HISTORY
-        )
-
-        return PlanUpdateResponse(
-            planId = planId,
-            snapshotId = newSnapshotId,
-            snapshotVersion = newVersion
+        try {
+            // 스냅샷 생성
+            planSnapshotRepository.save(
+                PlanSnapshot(
+                    planId = planId,
+                    version = requestedVersion,
+                    dataJson = objectMapper.valueToTree(plan),
+                    snapshotAt = plan.currentSnapshotAt
+                )
+            )
+        } catch (_: DataIntegrityViolationException) {
+            // 멱등 성공 처리
+        }
+        return PlanUpsertResponse(
+            planId = plan.id,
+            version = plan.currentVersion,
+            snapshotAt = plan.currentSnapshotAt,
+            status = plan.status,
         )
     }
 
     @Transactional
-    fun deletePlan(userId: UUID, planId: Long) {
+    fun deletePlan(userId: UUID, planId: UUID) {
         // 기존 플랜 조회
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
             ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
 
         // 플랜 삭제 멱등 처리
-        if (plan.isDeleted()) return
-
-        val snapshotId = plan.currentSnapshotId
-            ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
-
-        // 채팅 메시지 생성(플랜 삭제)
-        chatMessageService.appendChatMessage(
-            planId = planId,
-            snapshotId = snapshotId,
-            snapshotVersion = plan.currentSnapshotVersion,
-            content = ChatMessageTexts.PLAN_DELETED,
-            type = ChatMessageType.PLAN_HISTORY
-        )
-
-        // 플랜 삭제
-        plan.softDelete()
+        plan.takeIf { !it.isDeleted() }?.softDelete()
     }
 }

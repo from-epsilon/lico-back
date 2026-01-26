@@ -121,4 +121,28 @@ class Plan(
     @Column(name = "status", nullable = false)
     var status: PlanStatus = status
         private set
+
+    fun patch(
+        action: String? = null,
+        purpose: String? = null,
+        motive: String? = null,
+        memo: String? = null,
+        dtstart: Instant? = null,
+        rrule: String? = null,
+        remind: Boolean? = null,
+        leadTime: Int? = null,
+        nextVersion: Int,
+        nextSnapshotAt: Instant
+    ) {
+        action?.let { this.action = it }
+        purpose?.let { this.purpose = it }
+        motive?.let { this.motive = it }
+        memo?.let { this.memo = it }
+        dtstart?.let { this.dtstart = it }
+        rrule?.let { this.rrule = it }
+        remind?.let { this.remind = it }
+        leadTime?.let { this.leadTime = it }
+        this.currentVersion = nextVersion
+        this.currentSnapshotAt = nextSnapshotAt
+    }
 }
