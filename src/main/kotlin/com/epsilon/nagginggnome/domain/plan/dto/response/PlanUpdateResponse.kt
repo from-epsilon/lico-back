@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.domain.plan.dto.response
 
+import java.time.Instant
 import java.util.*
 
 /**
@@ -8,5 +9,5 @@ import java.util.*
 data class PlanUpdateResponse(
     val planId: UUID,
     val currentVersion: Int,
-    val updatedAt: java.time.Instant
+    val updatedAt: Instant
 )
