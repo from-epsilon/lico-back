@@ -26,7 +26,7 @@ class ChatMessageService(
     @Transactional
     fun appendChatMessage(
         planId: UUID,
-        snapshotId: Long,
+        snapshotId: UUID,
         snapshotVersion: Int,
         content: String,
         type: ChatMessageType
@@ -53,16 +53,16 @@ class ChatMessageService(
             throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
         }
 
-        val snapshotId = plan.currentSnapshotId
-            ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
-
-        appendChatMessage(
-            planId = planId,
-            snapshotId = snapshotId,
-            snapshotVersion = plan.currentSnapshotVersion,
-            content = req.content,
-            type = ChatMessageType.USER_REPLY
-        )
+//        val snapshotId = plan.currentSnapshotId
+//            ?: throw ApiException(PlanErrorCode.PLAN_INVALID_STATE)
+//
+//        appendChatMessage(
+//            planId = planId,
+//            snapshotId = snapshotId,
+//            snapshotVersion = plan.currentSnapshotVersion,
+//            content = req.content,
+//            type = ChatMessageType.USER_REPLY
+//        )
     }
 
     @Transactional(readOnly = true)
