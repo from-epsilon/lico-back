@@ -1,13 +1,11 @@
 package com.epsilon.nagginggnome.domain.plan.dto.request
 
 import java.time.Instant
-import java.util.*
 
 /**
  * 플랜 수정 요청 DTO
  */
 data class PlanUpdateRequest(
-    val planId: UUID,
     val action: String?,
     val purpose: String?,
     val motive: String?,
