@@ -1,6 +1,7 @@
 package com.epsilon.nagginggnome.domain.push.batch
 
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
+import com.epsilon.nagginggnome.domain.push.converter.FcmDataJsonConverter
 import com.epsilon.nagginggnome.domain.push.repository.FcmTokenRepository
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
@@ -9,7 +10,6 @@ import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import tools.jackson.core.type.TypeReference
 import java.time.Instant
 
 @Service
@@ -19,8 +19,6 @@ class PushJobBatchRunner(
     private val fcmPushService: FcmPushService,
     private val objectMapper: tools.jackson.databind.ObjectMapper
 ) {
-
-    private val fcmDataTypeRef = object : TypeReference<Map<String, String>>() {}
 
     /**
      * 배치 1회 실행
@@ -41,7 +39,7 @@ class PushJobBatchRunner(
             runCatching {
                 val fcmToken = fcmTokenRepository.findByUserId(job.userId)
                     ?: throw ApiException(PushJobErrorCode.FCM_TOKEN_NOT_FOUND)
-                val data = toFcmDataMap(job.dataJson)
+                val data = FcmDataJsonConverter.toFcmDataMap(objectMapper, job.dataJson)
 
                 fcmPushService.sendToToken(
                     token = fcmToken.token,
@@ -90,15 +88,5 @@ class PushJobBatchRunner(
         if (failedIds.isNotEmpty()) {
             pushJobRepository.updateStatus(failedIds, PushJobStatus.FAILED)
         }
-    }
-
-    /**
-     * JSON 문자열을 FCM data payload(Map<String, String>)로 변환하는 확장 함수
-     */
-    private fun toFcmDataMap(data: String?): Map<String, String> {
-        if (data.isNullOrBlank()) {
-            return emptyMap()
-        }
-        return objectMapper.readValue(data, fcmDataTypeRef)
     }
 }
