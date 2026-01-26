@@ -1,11 +1,13 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
+import com.epsilon.nagginggnome.domain.plan.converter.PlanSnapshotJsonConverter
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpsertResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
+import com.epsilon.nagginggnome.domain.plan.mapper.PlanSnapshotMapper
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
@@ -65,12 +67,16 @@ class PlanService(
                 )
             )
 
+            // 스냅샷 메타 데이터 생성
+            val data = PlanSnapshotMapper.toSnapshotData(newPlan)
+            val dataJson = PlanSnapshotJsonConverter.toJsonMap(objectMapper, data)
+
             // 스냅샷 생성
             planSnapshotRepository.save(
                 PlanSnapshot(
                     planId = newPlan.id,
                     version = newPlan.currentVersion,
-                    dataJson = objectMapper.valueToTree(newPlan),
+                    dataJson = dataJson,
                     snapshotAt = newPlan.currentSnapshotAt
                 )
             )
@@ -142,13 +148,17 @@ class PlanService(
             nextSnapshotAt = req.snapshotAt
         )
 
+        // 스냅샷 메타 데이터 생성
+        val data = PlanSnapshotMapper.toSnapshotData(plan)
+        val dataJson = PlanSnapshotJsonConverter.toJsonMap(objectMapper, data)
+
         try {
             // 스냅샷 생성
             planSnapshotRepository.save(
                 PlanSnapshot(
                     planId = planId,
                     version = requestedVersion,
-                    dataJson = objectMapper.valueToTree(plan),
+                    dataJson = objectMapper.valueToTree(dataJson),
                     snapshotAt = plan.currentSnapshotAt
                 )
             )

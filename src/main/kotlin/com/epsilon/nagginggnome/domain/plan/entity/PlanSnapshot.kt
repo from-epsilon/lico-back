@@ -25,7 +25,7 @@ import java.util.*
 class PlanSnapshot(
     planId: UUID,
     version: Int,
-    dataJson: JsonNode,
+    dataJson: Map<String, Any?>,
     snapshotAt: Instant = Instant.now(),
 ) : BaseEntity() {
 
@@ -57,7 +57,7 @@ class PlanSnapshot(
      */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data_json", nullable = false, columnDefinition = "jsonb")
-    var dataJson: JsonNode = dataJson
+    var dataJson: Map<String, Any?> = dataJson
         private set
 
     /**
