@@ -30,11 +30,20 @@ enum class PlanErrorCode(
     ),
 
     /**
-     * 플랜의 현재 스냅샷 포인터가 비정상인 경우
+     * 플랜 버전이 오래된 요청인 경우
      */
-    PLAN_INVALID_STATE(
-        code = "PLAN_409_INVALID_STATE",
+    PLAN_VERSION_STALE(
+        code = "PLAN_409_VERSION_STALE",
         status = HttpStatus.CONFLICT,
-        message = "Plan is in an invalid state."
-    )
+        message = "Plan version is stale."
+    ),
+
+    /**
+     * 플랜 버전에 공백이 있는 요청인 경우
+     */
+    PLAN_VERSION_GAP(
+        code = "PLAN_409_VERSION_GAP",
+        status = HttpStatus.CONFLICT,
+        message = "Plan version gap detected."
+    ),
 }
