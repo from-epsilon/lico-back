@@ -21,7 +21,7 @@ CREATE TABLE public.plans (
   remind boolean NOT NULL DEFAULT false,
   lead_time integer,
   current_version integer NOT NULL DEFAULT 0,
-  current_snapshot_at  NOT NULL DEFAULT now(),
+  current_snapshot_at timestamptz NOT NULL DEFAULT now(),
 
   status text NOT NULL DEFAULT 'ACTIVE',
 
@@ -79,8 +79,8 @@ CREATE TABLE public.chat_messages (
   snapshot_id uuid NOT NULL,
   snapshot_version integer NOT NULL,
 
-  created_at timestamptz NOT NULL,
-  updated_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
   deleted_at timestamptz,
 
   content text NOT NULL,
