@@ -5,11 +5,11 @@ import java.time.Instant
 import java.util.*
 
 /**
- * 플랜 생성 응답 DTO
+ * 플랜 생성, 수정 응답 DTO
  */
-data class PlanCreateResponse(
+data class PlanUpsertResponse(
     val planId: UUID,
-    val currentVersion: Int,
+    val version: Int,
+    val snapshotAt: Instant,
     val status: PlanStatus,
-    val createdAt: Instant
 )
