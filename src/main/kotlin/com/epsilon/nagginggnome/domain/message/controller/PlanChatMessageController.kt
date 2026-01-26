@@ -24,7 +24,7 @@ class PlanChatMessageController(
     @GetMapping("/{planId}/messages")
     fun getPlanChatMessages(
         @AuthenticationPrincipal userId: UUID,
-        @PathVariable planId: Long,
+        @PathVariable planId: UUID,
         @PageableDefault(size = 20) pageable: Pageable
     ): ResponseEntity<ApiResponse<Page<ChatMessageListItemResponse>>> {
         val res = chatMessageService.getPlanChatMessages(userId, planId, pageable)
@@ -34,7 +34,7 @@ class PlanChatMessageController(
     @PostMapping("/{planId}/messages")
     fun createPlanChatMessage(
         @AuthenticationPrincipal userId: UUID,
-        @PathVariable planId: Long,
+        @PathVariable planId: UUID,
         @RequestBody req: ChatMessageCreateRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
         chatMessageService.appendUserReply(userId, planId, req)

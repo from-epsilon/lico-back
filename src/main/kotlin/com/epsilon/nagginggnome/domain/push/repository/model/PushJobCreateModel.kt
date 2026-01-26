@@ -19,7 +19,7 @@ data class PushJobCreateModel(
      * 관련 플랜 ID
      * - general인 경우 null
      */
-    val planId: Long?,
+    val planId: UUID?,
 
     /**
      * 메시지 종류

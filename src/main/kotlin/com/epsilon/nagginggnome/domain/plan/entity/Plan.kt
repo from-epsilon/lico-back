@@ -1,39 +1,39 @@
 package com.epsilon.nagginggnome.domain.plan.entity
 
+import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import com.epsilon.nagginggnome.domain.user.entity.User
 import com.epsilon.nagginggnome.global.entity.BaseEntity
 import jakarta.persistence.*
+import java.time.Instant
+import java.util.*
 
 /**
  * plans 테이블 매핑 엔티티
- *
- * 역할
- * - 최신 스냅샷 포인터(currentSnapshotId) 및 최신 버전(currentSnapshotVersion) 캐시 유지
  */
 @Entity
-@Table(
-    name = "plans",
-    indexes = [
-        Index(name = "idx_plans_user_id", columnList = "user_id")
-    ]
-)
-@SequenceGenerator(
-    name = "plan_seq",
-    sequenceName = "plan_seq"
-)
+@Table(name = "plans")
 class Plan(
+    planId: UUID,
     user: User,
-    currentSnapshot: Long? = null,
-    currentSnapshotVersion: Int = 0
+    action: String,
+    purpose: String? = null,
+    motive: String? = null,
+    memo: String? = null,
+    dtstart: Instant,
+    rrule: String,
+    remind: Boolean = false,
+    leadTime: Int? = null,
+    currentVersion: Int = 0,
+    currentSnapshotAt: Instant = Instant.now(),
+    status: PlanStatus = PlanStatus.ACTIVE,
 ) : BaseEntity() {
 
     /**
      * 고유 ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "plan_seq")
-    @Column(name = "id", nullable = false, updatable = false)
-    var id: Long? = null
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
+    var id: UUID = planId
         private set
 
     /**
@@ -45,25 +45,104 @@ class Plan(
         private set
 
     /**
-     * 현재 스냅샷
+     * 행동(Title)
      */
-    @Column(name = "current_snapshot_id")
-    var currentSnapshotId: Long? = currentSnapshot
+    @Column(name = "action", nullable = false, columnDefinition = "text")
+    var action: String = action
         private set
 
     /**
-     * 현재 버전
+     * 목적
      */
-    @Column(name = "current_snapshot_version", nullable = false)
-    var currentSnapshotVersion: Int = currentSnapshotVersion
+    @Column(name = "purpose", columnDefinition = "text")
+    var purpose: String? = purpose
         private set
 
     /**
-     * 스냅샷 생성 후 Plan에 현재 포인터를 갱신
-     * - 트랜잭션 내에서 Snapshot INSERT 이후 호출
+     * 동기
      */
-    fun pointToSnapshot(snapshotId: Long, snapshotVersion: Int) {
-        this.currentSnapshotId = snapshotId
-        this.currentSnapshotVersion = snapshotVersion
+    @Column(name = "motive", columnDefinition = "text")
+    var motive: String? = motive
+        private set
+
+    /**
+     * 메모
+     */
+    @Column(name = "memo", columnDefinition = "text")
+    var memo: String? = memo
+        private set
+
+    /**
+     * 시작 일시
+     */
+    @Column(name = "dtstart", nullable = false)
+    var dtstart: Instant = dtstart
+        private set
+
+    /**
+     * 반복 규칙(RRULE)
+     */
+    @Column(name = "rrule", nullable = false, columnDefinition = "text")
+    var rrule: String = rrule
+        private set
+
+    /**
+     * 알림 여부
+     */
+    @Column(name = "remind", nullable = false)
+    var remind: Boolean = remind
+        private set
+
+    /**
+     * 준비 시간(분 단위)
+     */
+    @Column(name = "lead_time")
+    var leadTime: Int? = leadTime
+        private set
+
+    /**
+     * 최근 스냅샷 버전
+     */
+    @Column(name = "current_version", nullable = false)
+    var currentVersion: Int = currentVersion
+        private set
+
+    /**
+     * 최근 스냅샷 시점
+     */
+    @Column(name = "current_snapshot_at", nullable = false)
+    var currentSnapshotAt: Instant = currentSnapshotAt
+        private set
+
+    /**
+     * 상태
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    var status: PlanStatus = status
+        private set
+
+    fun patch(
+        action: String? = null,
+        purpose: String? = null,
+        motive: String? = null,
+        memo: String? = null,
+        dtstart: Instant? = null,
+        rrule: String? = null,
+        remind: Boolean? = null,
+        leadTime: Int? = null,
+        nextVersion: Int,
+        nextSnapshotAt: Instant
+    ) {
+        action?.let { this.action = it }
+        purpose?.let { this.purpose = it }
+        motive?.let { this.motive = it }
+        memo?.let { this.memo = it }
+        dtstart?.let { this.dtstart = it }
+        rrule?.let { this.rrule = it }
+        remind?.let { this.remind = it }
+        leadTime?.let { this.leadTime = it }
+        this.currentVersion = nextVersion
+        this.currentSnapshotAt = nextSnapshotAt
     }
 }
