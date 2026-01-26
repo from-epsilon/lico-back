@@ -21,6 +21,7 @@ CREATE TABLE public.plans (
   remind boolean NOT NULL DEFAULT false,
   lead_time integer,
   current_version integer NOT NULL DEFAULT 0,
+  current_snapshot_at  NOT NULL DEFAULT now(),
 
   status text NOT NULL DEFAULT 'ACTIVE',
 
@@ -51,6 +52,10 @@ CREATE TABLE public.plan_snapshots (
   version integer NOT NULL,
   snapshot_at timestamptz NOT NULL DEFAULT now(),
   data_json jsonb NOT NULL,
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz,
 
   CONSTRAINT plan_snapshots_pkey PRIMARY KEY (id),
 
