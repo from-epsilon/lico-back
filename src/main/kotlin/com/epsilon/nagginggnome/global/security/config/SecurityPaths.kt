@@ -27,6 +27,7 @@ enum class SecurityPaths(
      * 헬스 체크 API
      */
     HEALTH_CHECK("/actuator/health/**", true),
+    PROMETHEUS("/actuator/prometheus/**", true),
 
     /**
      * 스웨거 API
