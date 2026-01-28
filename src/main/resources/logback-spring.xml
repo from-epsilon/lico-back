@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!--
+        Spring 환경(application.yml/properties)에서 값 로드
+    -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app"/>
+    <springProperty scope="context" name="APP_ENV" source="spring.profiles.active" defaultValue="default"/>
+
+    <!--
+        - OTel JavaAgent가 MDC에 주입하는 trace_id/span_id가 있으면 함께 출력
+    -->
+    <property name="PLAIN_PATTERN"
+              value="%d{HH:mm:ss.SSS} %-5level [%thread] trace_id=%X{trace_id:-} span_id=%X{span_id:-} %logger{36} - %msg%n%ex{5}"/>
+
+    <!--
+        로컬 PLAIN 콘솔 Appender
+        - IDE 콘솔에서 보기 쉬운 형태
+    -->
+    <appender name="CONSOLE_PLAIN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PLAIN_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+        운영용 JSON 콘솔 Appender
+        - Promtail/Alloy가 stdout(JSON)를 수집해서 Loki로 전송하는 전제
+        - MDC 포함: trace_id, span_id, trace_flags 등
+        - stacktrace JSON 필드 정리: ShortenedThrowableConverter 사용
+    -->
+    <appender name="CONSOLE_JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+
+            <!-- MDC 포함(기본 포함이지만 의도를 명확히 하기 위해 명시) -->
+            <includeMdc>true</includeMdc>
+
+            <!-- stacktrace를 JSON 필드로 담기 위한 설정 -->
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <!-- throwable당 최대 스택 깊이 -->
+                <maxDepthPerThrowable>50</maxDepthPerThrowable>
+                <!-- stacktrace 문자열 최대 길이 -->
+                <maxLength>8192</maxLength>
+                <!-- Root cause를 먼저 보여주기 -->
+                <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
+
+            <!-- 호출 위치 계산 비용이 있어 운영에서는 false 권장 -->
+            <includeCallerData>false</includeCallerData>
+
+            <!-- 고정 필드(서비스 식별, 환경 식별) -->
+            <customFields>{"service":"${APP_NAME}","env":"${APP_ENV}"}</customFields>
+        </encoder>
+    </appender>
+
+    <springProfile name="local">
+        <root level="${LOG_LEVEL:-INFO}">
+            <appender-ref ref="CONSOLE_PLAIN"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod,dev,batch">
+        <root level="${LOG_LEVEL:-INFO}">
+            <appender-ref ref="CONSOLE_JSON"/>
+        </root>
+    </springProfile>
+
+</configuration>

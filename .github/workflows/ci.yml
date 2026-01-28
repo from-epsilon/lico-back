@@ -36,11 +36,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # PR: 테스트만 수행
-      - name: Test (PR only)
-        if: github.event_name == 'pull_request'
-        run: ./gradlew --no-daemon test
-
       # PR: 코드젠 + 테스트 수행
       - name: Generate jOOQ + Test (PR only)
         if: github.event_name == 'pull_request'
@@ -110,6 +105,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # OTel Java agent 다운로드 (push에서만)
+      - name: Download OpenTelemetry Java agent (push only)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p otel
+          curl -fsSLo otel/opentelemetry-javaagent.jar \
+            https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+
       # 이미지 빌드 + 푸시 (push에서만)
       - name: Build and push image (push only)
         if: github.event_name != 'pull_request'
@@ -149,7 +154,7 @@ jobs:
 
           WORKFLOW_FILE="deploy.yml"
 
-          curl -sS -X POST \
+          STATUS="$(curl -sS -o /tmp/infra_cd_resp.json -w "%{http_code}" -X POST \
             -H "Authorization: Bearer ${TOKEN}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches" \
@@ -162,4 +167,10 @@ jobs:
             }
           }
           JSON
-          )"
+          )")"
+
+          if [[ "${STATUS}" != "204" ]]; then
+            echo "Infra CD trigger failed (status=${STATUS})"
+            cat /tmp/infra_cd_resp.json || true
+            exit 1
+          fi
