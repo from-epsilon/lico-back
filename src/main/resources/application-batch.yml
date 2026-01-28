@@ -1,6 +1,6 @@
-server:
-  address: 127.0.0.1
-  port: 8080
+spring:
+  main:
+    web-application-type: none
 
 management:
   endpoints:
@@ -8,5 +8,4 @@ management:
       exposure:
         include:
           - health
-          - info
           - prometheus
