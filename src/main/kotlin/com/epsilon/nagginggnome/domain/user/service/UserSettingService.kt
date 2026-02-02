@@ -34,7 +34,8 @@ class UserSettingService(
             nickname = userSetting.nickname,
             verbosityPerDay = userSetting.verbosityPerDay,
             sleepTime = userSetting.sleepTime,
-            wakeTime = userSetting.wakeTime
+            wakeTime = userSetting.wakeTime,
+            timezone = userSetting.timezone
         )
     }
 
@@ -59,7 +60,8 @@ class UserSettingService(
                     nickname = req.nickname,
                     verbosityPerDay = req.verbosityPerDay,
                     sleepTime = req.sleepTime,
-                    wakeTime = req.wakeTime
+                    wakeTime = req.wakeTime,
+                    timezone = req.timezone
                 )
             )
         } catch (_: DataIntegrityViolationException) {
@@ -71,7 +73,8 @@ class UserSettingService(
             nickname = userSetting.nickname,
             verbosityPerDay = userSetting.verbosityPerDay,
             sleepTime = userSetting.sleepTime,
-            wakeTime = userSetting.wakeTime
+            wakeTime = userSetting.wakeTime,
+            timezone = userSetting.timezone
         )
     }
 
@@ -87,14 +90,16 @@ class UserSettingService(
             nickname = req.nickname,
             verbosityPerDay = req.verbosityPerDay,
             sleepTime = req.sleepTime,
-            wakeTime = req.wakeTime
+            wakeTime = req.wakeTime,
+            timezone = req.timezone
         )
 
         return UserSettingUpdateResponse(
             nickname = userSetting.nickname,
             verbosityPerDay = userSetting.verbosityPerDay,
             sleepTime = userSetting.sleepTime,
-            wakeTime = userSetting.wakeTime
+            wakeTime = userSetting.wakeTime,
+            timezone = userSetting.timezone
         )
     }
 }

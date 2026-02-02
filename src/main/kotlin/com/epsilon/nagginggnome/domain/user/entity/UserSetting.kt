@@ -15,7 +15,8 @@ class UserSetting(
     nickname: String,
     verbosityPerDay: Double,
     sleepTime: Int,
-    wakeTime: Int
+    wakeTime: Int,
+    timezone: String
 ) {
 
     /**
@@ -67,15 +68,25 @@ class UserSetting(
     var wakeTime: Int = wakeTime
         private set
 
+    /**
+     * 시간대
+     */
+    @Column(name = "timezone")
+    var timezone: String = timezone
+        private set
+
+
     fun patch(
         nickname: String? = null,
         verbosityPerDay: Double? = null,
         sleepTime: Int? = null,
-        wakeTime: Int? = null
+        wakeTime: Int? = null,
+        timezone: String? = null,
     ) {
         nickname?.let { this.nickname = it }
         verbosityPerDay?.let { this.verbosityPerDay = it }
         sleepTime?.let { this.sleepTime = it }
         wakeTime?.let { this.wakeTime = it }
+        timezone?.let { this.timezone = it }
     }
 }
