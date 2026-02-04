@@ -9,7 +9,7 @@ import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.UUID
 
 @Service
 class PushJobService(

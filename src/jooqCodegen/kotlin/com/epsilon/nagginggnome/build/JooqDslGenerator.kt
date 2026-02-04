@@ -44,14 +44,14 @@ object JooqDslGenerator {
                             Database()
                                 .withName("org.jooq.meta.postgres.PostgresDatabase")
                                 .withInputSchema("public")
-                                .withIncludes("push_.*")
+                                .withIncludes("(push_.*|llm_jobs|user_summaries|users)")
                                 .withExcludes("flyway_schema_history")
                                 .withForcedTypes(
                                     listOf(
                                         ForcedType()
                                             .withUserType("java.time.Instant")
                                             .withConverter(
-                                                "com.epsilon.nagginggnome.global.jooq.converter.OffsetDateTimeToInstantConverter"
+                                                "com.epsilon.nagginggnome.infra.persistence.jooq.converter.OffsetDateTimeToInstantConverter"
                                             )
                                             .withIncludeTypes("(?i:timestamp with time zone|timestamptz)")
                                     )

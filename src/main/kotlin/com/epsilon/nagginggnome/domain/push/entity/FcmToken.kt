@@ -1,9 +1,12 @@
 package com.epsilon.nagginggnome.domain.push.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 유저의 현재 유효한 FCM 토큰을 1개만 관리하는 엔티티
@@ -14,21 +17,7 @@ import java.util.*
  */
 @Entity
 @Table(
-    name = "fcm_tokens",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uk_fcm_tokens_user_id",
-            columnNames = ["user_id"]
-        ),
-        UniqueConstraint(
-            name = "uk_fcm_tokens_token",
-            columnNames = ["token"]
-        )
-    ],
-    indexes = [
-        Index(name = "idx_fcm_tokens_user_id", columnList = "user_id"),
-        Index(name = "idx_fcm_tokens_token", columnList = "token")
-    ]
+    name = "fcm_tokens"
 )
 class FcmToken(
     userId: UUID,

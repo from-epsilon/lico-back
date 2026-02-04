@@ -2,7 +2,7 @@ package com.epsilon.nagginggnome.domain.plan.dto.response
 
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 플랜 생성, 수정 응답 DTO

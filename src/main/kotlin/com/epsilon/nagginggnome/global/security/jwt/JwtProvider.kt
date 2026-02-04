@@ -6,7 +6,8 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
 import java.time.Instant
-import java.util.*
+import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 
 /**

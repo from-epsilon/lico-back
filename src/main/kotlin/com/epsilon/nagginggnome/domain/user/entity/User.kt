@@ -3,13 +3,20 @@ package com.epsilon.nagginggnome.domain.user.entity
 import com.epsilon.nagginggnome.domain.user.constant.Role
 import com.epsilon.nagginggnome.domain.user.constant.UserStatus
 import com.epsilon.nagginggnome.global.entity.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users"
+)
 class User(
     email: String?,
     lastLoginAt: Instant

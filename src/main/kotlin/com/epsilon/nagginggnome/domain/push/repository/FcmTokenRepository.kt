@@ -1,18 +1,13 @@
 package com.epsilon.nagginggnome.domain.push.repository
 
 import com.epsilon.nagginggnome.domain.push.entity.FcmToken
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
-import java.util.*
+import java.util.UUID
 
-@Repository
-interface FcmTokenRepository : JpaRepository<FcmToken, UUID> {
-
+interface FcmTokenRepository {
     fun findByUserId(userId: UUID): FcmToken?
-
     fun findByToken(token: String): FcmToken?
-
+    fun save(entity: FcmToken): FcmToken
+    fun delete(entity: FcmToken)
     fun deleteByUserId(userId: UUID): Long
-
     fun deleteByToken(token: String): Long
 }

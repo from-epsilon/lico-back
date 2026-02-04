@@ -3,12 +3,16 @@ package com.epsilon.nagginggnome.global.security.jwt
 import com.epsilon.nagginggnome.domain.user.constant.Role
 import com.epsilon.nagginggnome.global.constant.code.JwtErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
-import io.jsonwebtoken.*
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.MalformedJwtException
+import io.jsonwebtoken.UnsupportedJwtException
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SecurityException
 import org.springframework.stereotype.Component
-import java.util.*
+import java.util.UUID
 import javax.crypto.SecretKey
 
 /**

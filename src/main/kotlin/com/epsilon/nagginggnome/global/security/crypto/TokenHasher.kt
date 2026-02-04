@@ -4,7 +4,7 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
 import java.security.MessageDigest
-import java.util.*
+import java.util.Base64
 import javax.crypto.Mac
 import javax.crypto.SecretKey
 

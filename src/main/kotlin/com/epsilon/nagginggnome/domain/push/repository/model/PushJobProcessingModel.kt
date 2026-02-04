@@ -3,7 +3,7 @@ package com.epsilon.nagginggnome.domain.push.repository.model
 import com.epsilon.nagginggnome.domain.push.constant.MessageKind
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 워커 처리용 조회 모델

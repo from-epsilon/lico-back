@@ -1,8 +1,8 @@
 package com.epsilon.nagginggnome.domain.plan.dto.request
 
-import java.time.Instant
-import java.util.*
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
+import java.time.Instant
+import java.util.UUID
 
 /**
  * 플랜 수정 요청 DTO

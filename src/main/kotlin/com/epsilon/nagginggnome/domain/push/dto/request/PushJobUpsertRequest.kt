@@ -2,7 +2,7 @@ package com.epsilon.nagginggnome.domain.push.dto.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 알림 스케줄 일괄 업로드 요청 DTO

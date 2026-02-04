@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.auth.repository
 
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * Refresh Token 저장소 인터페이스
