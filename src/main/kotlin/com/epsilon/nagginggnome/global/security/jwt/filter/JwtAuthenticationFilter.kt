@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import java.util.*
+import java.util.UUID
 
 /**
  * 매 요청마다 Authorization 헤더의 Bearer 토큰을 검사하여 인증을 구성하는 필터

@@ -1,13 +1,16 @@
 package com.epsilon.nagginggnome.domain.plan.entity
 
 import com.epsilon.nagginggnome.global.entity.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.UuidGenerator
 import org.hibernate.type.SqlTypes
-import tools.jackson.databind.JsonNode
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * plan_snapshots 테이블 매핑 엔티티

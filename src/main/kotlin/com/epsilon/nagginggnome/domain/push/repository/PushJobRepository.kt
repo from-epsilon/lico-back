@@ -4,7 +4,7 @@ import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * Push Job 저장소 인터페이스

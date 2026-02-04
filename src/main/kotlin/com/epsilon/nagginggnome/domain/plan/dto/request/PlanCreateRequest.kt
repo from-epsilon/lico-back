@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.dto.request
 
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 플랜 생성 요청 DTO

@@ -11,7 +11,7 @@ import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.springframework.stereotype.Repository
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * PushJobRepository의 jOOQ 기반 구현체

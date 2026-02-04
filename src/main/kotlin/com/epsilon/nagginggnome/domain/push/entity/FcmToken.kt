@@ -1,9 +1,14 @@
 package com.epsilon.nagginggnome.domain.push.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * 유저의 현재 유효한 FCM 토큰을 1개만 관리하는 엔티티

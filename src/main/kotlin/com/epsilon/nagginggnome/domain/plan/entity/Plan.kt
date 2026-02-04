@@ -3,9 +3,17 @@ package com.epsilon.nagginggnome.domain.plan.entity
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import com.epsilon.nagginggnome.domain.user.entity.User
 import com.epsilon.nagginggnome.global.entity.BaseEntity
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 /**
  * plans 테이블 매핑 엔티티
