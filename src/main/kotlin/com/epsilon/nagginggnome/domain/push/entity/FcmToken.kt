@@ -19,21 +19,7 @@ import java.util.UUID
  */
 @Entity
 @Table(
-    name = "fcm_tokens",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uk_fcm_tokens_user_id",
-            columnNames = ["user_id"]
-        ),
-        UniqueConstraint(
-            name = "uk_fcm_tokens_token",
-            columnNames = ["token"]
-        )
-    ],
-    indexes = [
-        Index(name = "idx_fcm_tokens_user_id", columnList = "user_id"),
-        Index(name = "idx_fcm_tokens_token", columnList = "token")
-    ]
+    name = "fcm_tokens"
 )
 class FcmToken(
     userId: UUID,

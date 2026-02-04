@@ -14,7 +14,9 @@ import java.time.Instant
 import java.util.UUID
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users"
+)
 class User(
     email: String?,
     lastLoginAt: Instant

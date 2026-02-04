@@ -19,7 +19,9 @@ import java.util.UUID
  * plans 테이블 매핑 엔티티
  */
 @Entity
-@Table(name = "plans")
+@Table(
+    name = "plans"
+)
 class Plan(
     planId: UUID,
     user: User,

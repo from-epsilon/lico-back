@@ -26,20 +26,7 @@ import java.util.UUID
  */
 @Entity
 @Table(
-    name = "user_social_accounts",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uk_social_provider_userid",
-            columnNames = ["provider", "provider_user_id"]
-        ),
-        UniqueConstraint(
-            name = "uk_social_user_provider",
-            columnNames = ["user_id", "provider"]
-        )
-    ],
-    indexes = [
-        Index(name = "idx_social_user_id", columnList = "user_id")
-    ]
+    name = "user_social_accounts"
 )
 class UserSocialAccount(
     user: User,

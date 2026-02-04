@@ -17,13 +17,7 @@ import java.util.UUID
  */
 @Entity
 @Table(
-    name = "plan_snapshots",
-    uniqueConstraints = [
-        UniqueConstraint(
-            name = "uk_plan_snapshots_plan_id_version",
-            columnNames = ["plan_id", "version"]
-        )
-    ]
+    name = "plan_snapshots"
 )
 class PlanSnapshot(
     planId: UUID,
