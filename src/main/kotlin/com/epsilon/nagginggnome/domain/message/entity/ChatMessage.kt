@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import java.util.UUID
 
@@ -19,10 +18,6 @@ import java.util.UUID
 @Entity
 @Table(
     name = "chat_messages",
-)
-@SequenceGenerator(
-    name = "chat_message_seq",
-    sequenceName = "chat_message_seq"
 )
 class ChatMessage(
     planId: UUID,
@@ -36,7 +31,7 @@ class ChatMessage(
      * 고유 ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "chat_message_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false, updatable = false)
     var id: Long? = null
         private set
