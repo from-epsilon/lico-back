@@ -24,7 +24,10 @@ class PushJobBatchScheduler(
         lockAtMostFor = "PT10M",
         lockAtLeastFor = "PT5S"
     )
-    @Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
+    @Scheduled(
+        cron = "0 * * * * *",
+        zone = "Asia/Seoul"
+    )
     fun runEveryMinute() {
         pushJobBatchRunner.runOnce(
             now = Instant.now(),
