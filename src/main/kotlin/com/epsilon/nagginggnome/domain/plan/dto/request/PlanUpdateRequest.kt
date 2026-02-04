@@ -1,19 +1,35 @@
 package com.epsilon.nagginggnome.domain.plan.dto.request
 
 import java.time.Instant
+import java.util.*
 
 /**
  * 플랜 수정 요청 DTO
  */
 data class PlanUpdateRequest(
-    val action: String?,
-    val purpose: String?,
-    val motive: String?,
-    val memo: String?,
-    val dtstart: Instant?,
-    val rrule: String?,
-    val remind: Boolean?,
-    val leadTime: Int?,
-    val version: Int,
-    val snapshotAt: Instant
-)
+    val plan: PlanPayload,
+    val snapshot: SnapshotPayload
+) {
+
+    data class PlanPayload(
+        val action: String?,
+        val purpose: String?,
+        val motive: String?,
+        val memo: String?,
+        val dtstart: Instant?,
+        val rrule: String?,
+        val remind: Boolean?,
+        val leadTime: Int?,
+        val version: Int,
+        val snapshotAt: Instant
+    )
+
+    data class SnapshotPayload(
+        val id: UUID,
+        val planId: UUID,
+        val type: String,
+        val version: Int,
+        val snapshotAt: Instant,
+        val dataJson: Map<String, Any?>
+    )
+}

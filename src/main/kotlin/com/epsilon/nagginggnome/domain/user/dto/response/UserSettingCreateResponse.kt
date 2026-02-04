@@ -7,5 +7,6 @@ data class UserSettingCreateResponse(
     val nickname: String,
     val verbosityPerDay: Double,
     val sleepTime: Int,
-    val wakeTime: Int
+    val wakeTime: Int,
+    val timezone: String,
 )

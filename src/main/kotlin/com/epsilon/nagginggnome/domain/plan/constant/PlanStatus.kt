@@ -5,6 +5,7 @@ package com.epsilon.nagginggnome.domain.plan.constant
  */
 enum class PlanStatus {
     ACTIVE,
+    INACTIVE,
     DONE,
     DELETED
 }

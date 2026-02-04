@@ -35,7 +35,7 @@ class PlanController(
     /**
      * 플랜 수정 API
      */
-    @PostMapping("/{planId}")
+    @PatchMapping("/{planId}")
     fun updatePlan(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: UUID,
