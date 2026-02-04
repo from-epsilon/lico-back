@@ -70,6 +70,7 @@ class PlanService(
             planSnapshotRepository.save(
                 PlanSnapshot(
                     planId = newPlan.id,
+                    type = snapshot.type,
                     version = snapshot.version,
                     dataJson = snapshot.dataJson,
                     snapshotAt = snapshot.snapshotAt
@@ -151,6 +152,7 @@ class PlanService(
             planSnapshotRepository.save(
                 PlanSnapshot(
                     planId = planId,
+                    type = snapshot.type,
                     version = requestedVersion,
                     dataJson = snapshot.dataJson,
                     snapshotAt = snapshot.snapshotAt

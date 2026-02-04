@@ -24,6 +24,7 @@ import java.util.*
 )
 class PlanSnapshot(
     planId: UUID,
+    type: String,
     version: Int,
     dataJson: Map<String, Any?>,
     snapshotAt: Instant = Instant.now(),
@@ -43,6 +44,13 @@ class PlanSnapshot(
      */
     @Column(name = "plan_id", nullable = false, columnDefinition = "uuid")
     var planId: UUID = planId
+        private set
+
+    /**
+     * 스냅샷 타입
+     */
+    @Column(name = "type", nullable = false)
+    var type: String = type
         private set
 
     /**

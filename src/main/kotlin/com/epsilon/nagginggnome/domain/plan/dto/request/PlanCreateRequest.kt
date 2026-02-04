@@ -28,6 +28,7 @@ data class PlanCreateRequest(
     data class SnapshotPayload(
         val id: UUID,
         val planId: UUID,
+        val type: String,
         val version: Int,
         val snapshotAt: Instant,
         val dataJson: Map<String, Any?>
