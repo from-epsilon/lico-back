@@ -44,7 +44,7 @@ object JooqDslGenerator {
                             Database()
                                 .withName("org.jooq.meta.postgres.PostgresDatabase")
                                 .withInputSchema("public")
-                                .withIncludes("push_.*")
+                                .withIncludes("(push_.*|llm_.*)")
                                 .withExcludes("flyway_schema_history")
                                 .withForcedTypes(
                                     listOf(
