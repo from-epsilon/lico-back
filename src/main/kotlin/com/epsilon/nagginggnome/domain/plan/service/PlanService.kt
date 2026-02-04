@@ -13,7 +13,7 @@ import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.data.repository.findByIdOrNull
+
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -30,7 +30,7 @@ class PlanService(
      */
     @Transactional
     fun createPlan(userId: UUID, req: PlanCreateRequest): PlanUpsertResponse {
-        val user = userRepository.findByIdOrNull(userId)
+        val user = userRepository.findById(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
         val plan = req.plan
@@ -180,3 +180,7 @@ class PlanService(
         plan.takeIf { !it.isDeleted() }?.softDelete()
     }
 }
+
+
+
+

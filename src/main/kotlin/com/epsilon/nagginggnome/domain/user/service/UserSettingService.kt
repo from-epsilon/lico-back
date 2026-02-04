@@ -11,7 +11,7 @@ import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.data.repository.findByIdOrNull
+
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -27,7 +27,7 @@ class UserSettingService(
      */
     @Transactional(readOnly = true)
     fun getUserSetting(userId: UUID): UserSettingGetResponse {
-        val userSetting = userSettingRepository.findByIdOrNull(userId)
+        val userSetting = userSettingRepository.findById(userId)
             ?: throw ApiException(UserErrorCode.USER_SETTING_NOT_FOUND)
 
         return UserSettingGetResponse(
@@ -46,7 +46,7 @@ class UserSettingService(
      */
     @Transactional
     fun createUserSetting(userId: UUID, req: UserSettingCreateRequest): UserSettingCreateResponse {
-        val user = userRepository.findByIdOrNull(userId)
+        val user = userRepository.findById(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
         if (userSettingRepository.existsById(userId)) {
@@ -83,7 +83,7 @@ class UserSettingService(
      */
     @Transactional
     fun updateUserSetting(userId: UUID, req: UserSettingUpdateRequest): UserSettingUpdateResponse {
-        val userSetting = userSettingRepository.findByIdOrNull(userId)
+        val userSetting = userSettingRepository.findById(userId)
             ?: throw ApiException(UserErrorCode.USER_SETTING_NOT_FOUND)
 
         userSetting.patch(
@@ -103,3 +103,7 @@ class UserSettingService(
         )
     }
 }
+
+
+
+

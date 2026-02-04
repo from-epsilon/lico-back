@@ -11,7 +11,7 @@ import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.crypto.TokenHasher
 import com.epsilon.nagginggnome.global.security.jwt.JwtProvider
 import com.epsilon.nagginggnome.global.security.jwt.JwtUtils
-import org.springframework.data.repository.findByIdOrNull
+
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -53,7 +53,7 @@ class AuthService(
         // 토큰 검증
         validateRefreshToken(userId, refreshToken)
 
-        val user = userRepository.findByIdOrNull(userId)
+        val user = userRepository.findById(userId)
             ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
 
         // Access Token  재발급
@@ -112,3 +112,7 @@ class AuthService(
         }
     }
 }
+
+
+
+

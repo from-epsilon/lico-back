@@ -3,7 +3,7 @@ package com.epsilon.nagginggnome.domain.auth.service
 import com.epsilon.nagginggnome.domain.auth.dto.request.SocialLoginRequest
 import com.epsilon.nagginggnome.domain.auth.dto.response.SocialLoginResponse
 import com.epsilon.nagginggnome.domain.auth.repository.RefreshTokenRepository
-import com.epsilon.nagginggnome.domain.auth.validator.GoogleIdTokenVerifier
+import com.epsilon.nagginggnome.infra.social.google.validator.GoogleIdTokenVerifier
 import com.epsilon.nagginggnome.domain.user.constant.SocialProvider
 import com.epsilon.nagginggnome.domain.user.entity.User
 import com.epsilon.nagginggnome.domain.user.entity.UserSocialAccount
@@ -134,3 +134,5 @@ class GoogleAuthService(
         )
     }
 }
+
+
