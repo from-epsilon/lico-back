@@ -9,6 +9,7 @@ import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
+import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
 import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
@@ -143,6 +144,7 @@ class PlanService(
             rrule = planPayload.rrule,
             remind = planPayload.remind,
             leadTime = planPayload.leadTime,
+            status = planPayload.status,
             nextVersion = requestedVersion,
             nextSnapshotAt = planPayload.snapshotAt
         )

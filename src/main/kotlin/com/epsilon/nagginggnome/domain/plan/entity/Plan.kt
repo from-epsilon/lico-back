@@ -131,6 +131,7 @@ class Plan(
         rrule: String? = null,
         remind: Boolean? = null,
         leadTime: Int? = null,
+        status: PlanStatus? = null,
         nextVersion: Int,
         nextSnapshotAt: Instant
     ) {
@@ -142,6 +143,7 @@ class Plan(
         rrule?.let { this.rrule = it }
         remind?.let { this.remind = it }
         leadTime?.let { this.leadTime = it }
+        status?.let { this.status = it }
         this.currentVersion = nextVersion
         this.currentSnapshotAt = nextSnapshotAt
     }
