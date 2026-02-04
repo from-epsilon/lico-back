@@ -3,9 +3,7 @@ package com.epsilon.nagginggnome.domain.push.entity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.Table
-import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
 import java.util.UUID

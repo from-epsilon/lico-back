@@ -3,7 +3,6 @@ package com.epsilon.nagginggnome.domain.auth.service
 import com.epsilon.nagginggnome.domain.auth.dto.request.SocialLoginRequest
 import com.epsilon.nagginggnome.domain.auth.dto.response.SocialLoginResponse
 import com.epsilon.nagginggnome.domain.auth.repository.RefreshTokenRepository
-import com.epsilon.nagginggnome.infra.social.google.validator.GoogleIdTokenVerifier
 import com.epsilon.nagginggnome.domain.user.constant.SocialProvider
 import com.epsilon.nagginggnome.domain.user.entity.User
 import com.epsilon.nagginggnome.domain.user.entity.UserSocialAccount
@@ -14,6 +13,7 @@ import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.global.security.crypto.TokenHasher
 import com.epsilon.nagginggnome.global.security.jwt.JwtConstants
 import com.epsilon.nagginggnome.global.security.jwt.JwtProvider
+import com.epsilon.nagginggnome.infra.social.google.validator.GoogleIdTokenVerifier
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

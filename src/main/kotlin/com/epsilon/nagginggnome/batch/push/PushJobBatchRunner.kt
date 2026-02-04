@@ -1,13 +1,13 @@
 package com.epsilon.nagginggnome.batch.push
 
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
-import com.epsilon.nagginggnome.infra.fcm.converter.FcmDataJsonConverter
 import com.epsilon.nagginggnome.domain.push.repository.FcmTokenRepository
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
 import com.epsilon.nagginggnome.domain.push.service.FcmPushService
 import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
+import com.epsilon.nagginggnome.infra.fcm.converter.FcmDataJsonConverter
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
