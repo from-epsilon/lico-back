@@ -1,17 +1,19 @@
-package com.epsilon.nagginggnome.domain.llm.dto.response
+package com.epsilon.nagginggnome.domain.push.dto.request
 
 import com.epsilon.nagginggnome.domain.push.constant.PushType
 import java.time.Instant
 import java.util.UUID
 
 /**
- * PUSH_BATCH 작업 output_json
+ * LLM 푸시 배치 업서트 요청 DTO
  */
-data class PushBatchJobOutput(
+data class PushBatchUpsertRequest(
     val userId: UUID,
     val timeWindow: TimeWindow,
-    val messages: List<Message>
+    val messages: List<Message>,
+    val meta: Meta?
 ) {
+
     data class TimeWindow(
         val from: Instant,
         val to: Instant
@@ -22,6 +24,13 @@ data class PushBatchJobOutput(
         val title: String,
         val body: String,
         val intent: String?,
-        val pushType: PushType
+        val type: PushType,
+        val planId: UUID?
+    )
+
+    data class Meta(
+        val model: String,
+        val tokenUsage: Int,
+        val generatedAt: Instant
     )
 }
