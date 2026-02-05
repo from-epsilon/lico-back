@@ -12,12 +12,12 @@ enum class PushJobErrorCode(
 ) : ErrorCode {
 
     /**
-     * kind 값이 허용된 enum 범위(REMIND, GENERAL)에 없는 경우
+     * type 값이 허용된 enum 범위(REMINDER, ADDITIONAL)에 없는 경우
      */
     INVALID_MESSAGE_KIND(
         code = "PUSHJOB_400_INVALID_MESSAGE_KIND",
         status = HttpStatus.BAD_REQUEST,
-        message = "Invalid message kind."
+        message = "Invalid push type."
     ),
 
     /**

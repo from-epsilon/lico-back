@@ -2,6 +2,7 @@ package com.epsilon.nagginggnome.infra.persistence.jooq.user
 
 import com.epsilon.nagginggnome.domain.user.constant.UserStatus
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
+import com.epsilon.nagginggnome.generated.jooq.tables.references.FCM_TOKENS
 import com.epsilon.nagginggnome.generated.jooq.tables.references.USERS
 import com.epsilon.nagginggnome.generated.jooq.tables.references.USER_SUMMARIES
 import org.jooq.DSLContext
@@ -42,6 +43,7 @@ class UserSummaryRepositoryJooqAdapter(
         return dsl
             .select(USERS.ID)
             .from(USERS)
+            .join(FCM_TOKENS).on(FCM_TOKENS.USER_ID.eq(USERS.ID))
             .leftJoin(lastSummaries).on(lastUserId.eq(USERS.ID))
             .where(
                 lastCreatedAt.isNull
