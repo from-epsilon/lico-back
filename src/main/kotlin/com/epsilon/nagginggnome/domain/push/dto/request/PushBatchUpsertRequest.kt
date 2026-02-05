@@ -1,6 +1,6 @@
 package com.epsilon.nagginggnome.domain.push.dto.request
 
-import com.epsilon.nagginggnome.domain.push.constant.PushType
+import com.epsilon.nagginggnome.domain.message.constant.MessageType
 import java.time.Instant
 import java.util.UUID
 
@@ -24,7 +24,7 @@ data class PushBatchUpsertRequest(
         val title: String,
         val body: String,
         val intent: String?,
-        val type: PushType,
+        val type: MessageType,
         val planId: UUID?
     )
 

@@ -46,6 +46,11 @@ data class PushJobProcessingModel(
     val dataJson: String?,
 
     /**
+     * LLM 메타 데이터(JSON 문자열)
+     */
+    val llmMetaJson: String?,
+
+    /**
      * 발송 예정 시각
      */
     val scheduledAt: Instant,

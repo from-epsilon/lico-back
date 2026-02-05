@@ -18,9 +18,9 @@ class ServerMessageRepositoryJooqAdapter(
             .set(SERVER_MESSAGES.PLAN_ID, model.planId)
             .set(SERVER_MESSAGES.TITLE, model.title)
             .set(SERVER_MESSAGES.BODY, model.body)
-            .set(SERVER_MESSAGES.DATA_JSON, JSONB.valueOf(model.dataJson))
+            .set(SERVER_MESSAGES.DATA_JSON, model.dataJson?.let(JSONB::valueOf))
             .set(SERVER_MESSAGES.TYPE, model.type.name)
-            .set(SERVER_MESSAGES.LLM_META_JSON, JSONB.valueOf(model.llmMetaJson))
+            .set(SERVER_MESSAGES.LLM_META_JSON, model.llmMetaJson?.let(JSONB::valueOf))
             .returning(SERVER_MESSAGES.ID)
             .fetchOne()
             ?.id

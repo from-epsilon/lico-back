@@ -9,6 +9,6 @@ data class ServerMessageCreateModel(
     val type: MessageType,
     val title: String,
     val body: String,
-    val dataJson: String,
-    val llmMetaJson: String
+    val dataJson: String?,
+    val llmMetaJson: String?
 )
