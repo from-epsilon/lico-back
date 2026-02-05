@@ -6,6 +6,7 @@ import com.epsilon.nagginggnome.domain.llm.dto.request.UserSummaryJobInput
 import com.epsilon.nagginggnome.domain.llm.repository.LlmJobRepository
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobApplyModel
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobCreateModel
+import com.epsilon.nagginggnome.domain.user.config.UserProperties
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
 import org.springframework.stereotype.Service
 import tools.jackson.databind.ObjectMapper
@@ -16,12 +17,18 @@ import java.time.Instant
 class LlmJobService(
     private val llmJobRepository: LlmJobRepository,
     private val userSummaryRepository: UserSummaryRepository,
+    private val userProperties: UserProperties,
     private val objectMapper: ObjectMapper
 ) {
 
     fun enqueueUserSummaries(now: Instant, limit: Int) {
-        val cutoff = now.minus(Duration.ofDays(14))
-        val userIds = userSummaryRepository.findUserIdsDueForSummary(cutoff, limit)
+        val summaryCutoff = now.minus(Duration.ofDays(14))
+        val lastLoginCutoff = now.minus(Duration.ofDays(userProperties.dormancyLastLoginDays))
+        val userIds = userSummaryRepository.findUserIdsDueForSummary(
+            summaryCutoff = summaryCutoff,
+            lastLoginCutoff = lastLoginCutoff,
+            limit = limit
+        )
         if (userIds.isEmpty()) {
             return
         }

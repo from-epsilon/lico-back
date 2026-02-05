@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.infra.persistence.jooq.user
 
+import com.epsilon.nagginggnome.domain.user.constant.UserStatus
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
 import com.epsilon.nagginggnome.generated.jooq.tables.references.USERS
 import com.epsilon.nagginggnome.generated.jooq.tables.references.USER_SUMMARIES
@@ -16,7 +17,8 @@ class UserSummaryRepositoryJooqAdapter(
 ) : UserSummaryRepository {
 
     override fun findUserIdsDueForSummary(
-        cutoff: Instant,
+        summaryCutoff: Instant,
+        lastLoginCutoff: Instant,
         limit: Int
     ): List<UUID> {
         if (limit <= 0) {
@@ -43,8 +45,10 @@ class UserSummaryRepositoryJooqAdapter(
             .leftJoin(lastSummaries).on(lastUserId.eq(USERS.ID))
             .where(
                 lastCreatedAt.isNull
-                    .or(lastCreatedAt.le(cutoff))
+                    .or(lastCreatedAt.le(summaryCutoff))
             )
+            .and(USERS.STATUS.eq(UserStatus.ACTIVE.name))
+            .and(USERS.LAST_LOGIN_AT.ge(lastLoginCutoff))
             .orderBy(USERS.ID.asc())
             .limit(limit)
             .fetch(USERS.ID)
