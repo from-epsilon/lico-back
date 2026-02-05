@@ -22,3 +22,14 @@ ALTER TABLE public.push_jobs
 ALTER TABLE public.push_jobs
     ADD CONSTRAINT ck_push_jobs_type
         CHECK (type IN ('REMINDER', 'ADDITIONAL'));
+
+ALTER TABLE public.push_jobs
+    DROP CONSTRAINT IF EXISTS fk_push_jobs_batch;
+
+DROP TABLE IF EXISTS public.push_job_batches;
+
+ALTER TABLE public.push_jobs
+    DROP COLUMN IF EXISTS batch_id;
+
+ALTER TABLE public.push_jobs
+    ADD COLUMN llm_meta_json jsonb;
