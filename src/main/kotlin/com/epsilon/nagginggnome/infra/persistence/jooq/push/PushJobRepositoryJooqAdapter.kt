@@ -99,6 +99,7 @@ class PushJobRepositoryJooqAdapter(
                     title = rec.title,
                     body = rec.body,
                     dataJson = dataJsonString,
+                    llmMetaJson = rec.get(PUSH_JOBS.LLM_META_JSON)?.data(),
                     scheduledAt = rec.scheduledAt,
                     status = PushJobStatus.valueOf(requireNotNull(rec.status))
                 )

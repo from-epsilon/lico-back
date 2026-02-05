@@ -1,5 +1,7 @@
 package com.epsilon.nagginggnome.domain.push.service
 
+import com.epsilon.nagginggnome.domain.message.repository.ServerMessageRepository
+import com.epsilon.nagginggnome.domain.message.repository.model.ServerMessageCreateModel
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.FcmTokenRepository
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
@@ -17,6 +19,7 @@ class PushJobBatchService(
     private val pushJobRepository: PushJobRepository,
     private val fcmTokenRepository: FcmTokenRepository,
     private val fcmPushService: FcmPushService,
+    private val serverMessageRepository: ServerMessageRepository,
     private val objectMapper: ObjectMapper
 ) {
 
@@ -73,6 +76,18 @@ class PushJobBatchService(
             title = job.title,
             body = job.body,
             data = data
+        )
+
+        serverMessageRepository.insert(
+            ServerMessageCreateModel(
+                userId = job.userId,
+                planId = requireNotNull(job.planId),
+                title = requireNotNull(job.title),
+                body = requireNotNull(job.body),
+                dataJson = job.dataJson,
+                type = job.type,
+                llmMetaJson = job.llmMetaJson
+            )
         )
     }
 }
