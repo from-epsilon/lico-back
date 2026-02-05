@@ -1,63 +1,57 @@
 package com.epsilon.nagginggnome.domain.push.service
 
+import com.epsilon.nagginggnome.domain.llm.constant.LlmMetaData
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
-import com.epsilon.nagginggnome.domain.push.constant.PushType
-import com.epsilon.nagginggnome.domain.push.dto.request.PushJobUpsertRequest
+import com.epsilon.nagginggnome.domain.push.dto.request.PushBatchUpsertRequest
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
-import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
-import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 @Service
 class PushJobService(
-    private val pushJobRepository: PushJobRepository
+    private val pushJobRepository: PushJobRepository,
+    private val objectMapper: ObjectMapper
 ) {
 
     /**
-     * 업로드된 스케줄을 DB에 덮어쓰기(upsert)
-     *
-     * - 배치 키 멱등 삽입 성공 시에만 range 삭제 및 신규 insert 수행
-     * - 이미 처리된 batchId면 아무것도 하지 않음
+     * LLM에서 생성한 푸시 배치 반영
      */
     @Transactional
-    fun pushJobUpsert(userId: UUID, req: PushJobUpsertRequest) {
+    fun pushBatchUpsert(userId: UUID, req: PushBatchUpsertRequest) {
+        pushJobRepository.deletePushJobByUserAndRange(userId, req.timeWindow.from, req.timeWindow.to)
 
-        /**
-         * 배치 키를 멱등하게 삽입
-         * - false면 이미 처리된 요청으로 간주하고 종료
-         */
-        val inserted: Boolean = pushJobRepository.tryInsertBatchKey(userId, req.batchId)
-        if (!inserted) {
-            return
-        }
-
-        /**
-         * 기존 READY 작업을 삭제
-         * - [from, to]
-         */
-        pushJobRepository.deletePushJobByUserAndRange(userId, req.range.from, req.range.to)
-
-        /**
-         * notices를 CreateModel 리스트로 변환 후 배치 INSERT
-         */
-        val createModels: List<PushJobCreateModel> = req.notices.map { notice ->
-            val type: PushType = PushType.from(notice.type)
-                ?: throw ApiException(PushJobErrorCode.INVALID_MESSAGE_KIND)
-
+        val createModels = req.messages.map { message ->
             PushJobCreateModel(
                 userId = userId,
-                planId = notice.planId,
-                type = type,
-                title = null,
-                body = null,
+                planId = message.planId,
+                type = message.type,
+                title = message.title,
+                body = message.body,
                 dataJson = null,
+                llmMetaJson = buildLlmMetaJson(req.meta, message.intent),
                 status = PushJobStatus.READY,
-                scheduledAt = notice.scheduledAt
+                scheduledAt = message.scheduledAt
             )
         }
-        pushJobRepository.insertPushJob(userId, req.batchId, createModels)
+
+        pushJobRepository.insertPushJob(userId, createModels)
+    }
+
+    private fun buildLlmMetaJson(
+        meta: PushBatchUpsertRequest.Meta?,
+        intent: String?
+    ): String? {
+        val payload = buildMap<String, Any> {
+            meta?.let {
+                put(LlmMetaData.MODEL.key, it.model)
+                put(LlmMetaData.TOKEN_USAGE.key, it.tokenUsage)
+                put(LlmMetaData.GENERATED_AT.key, it.generatedAt)
+            }
+            intent?.let { put(LlmMetaData.INTENT.key, it) }
+        }
+        return payload.takeIf { it.isNotEmpty() }?.let(objectMapper::writeValueAsString)
     }
 }
