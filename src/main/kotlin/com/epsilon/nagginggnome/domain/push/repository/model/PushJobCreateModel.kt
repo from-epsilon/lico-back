@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.push.repository.model
 
-import com.epsilon.nagginggnome.domain.push.constant.MessageKind
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
+import com.epsilon.nagginggnome.domain.push.constant.PushType
 import java.time.Instant
 import java.util.UUID
 
@@ -17,14 +17,14 @@ data class PushJobCreateModel(
 
     /**
      * 관련 플랜 ID
-     * - general인 경우 null
+     * - additional인 경우 null
      */
     val planId: UUID?,
 
     /**
-     * 메시지 종류
+     * 푸시 유형
      */
-    val kind: MessageKind,
+    val type: PushType,
 
     /**
      * 알림 제목

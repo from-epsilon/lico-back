@@ -21,7 +21,7 @@ data class PushJobUpsertRequest(
     data class Notice(
         @JsonProperty("scheduledAtUtc")
         val scheduledAt: Instant,
-        val kind: String,
+        val type: String,
         val planId: UUID?
     )
 }

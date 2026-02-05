@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.push.service
 
-import com.epsilon.nagginggnome.domain.push.constant.MessageKind
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
+import com.epsilon.nagginggnome.domain.push.constant.PushType
 import com.epsilon.nagginggnome.domain.push.dto.request.PushJobUpsertRequest
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
@@ -44,13 +44,13 @@ class PushJobService(
          * notices를 CreateModel 리스트로 변환 후 배치 INSERT
          */
         val createModels: List<PushJobCreateModel> = req.notices.map { notice ->
-            val kind: MessageKind = MessageKind.from(notice.kind)
+            val type: PushType = PushType.from(notice.type)
                 ?: throw ApiException(PushJobErrorCode.INVALID_MESSAGE_KIND)
 
             PushJobCreateModel(
                 userId = userId,
                 planId = notice.planId,
-                kind = kind,
+                type = type,
                 title = null,
                 body = null,
                 dataJson = null,
