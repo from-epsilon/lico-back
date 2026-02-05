@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.infra.persistence.jooq.push
 
+import com.epsilon.nagginggnome.domain.message.constant.MessageType
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
-import com.epsilon.nagginggnome.domain.push.constant.PushType
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
@@ -95,7 +95,7 @@ class PushJobRepositoryJooqAdapter(
                     id = requireNotNull(rec.id),
                     userId = rec.userId,
                     planId = rec.planId,
-                    type = PushType.valueOf(rec.type),
+                    type = MessageType.valueOf(rec.type),
                     title = rec.title,
                     body = rec.body,
                     dataJson = dataJsonString,
