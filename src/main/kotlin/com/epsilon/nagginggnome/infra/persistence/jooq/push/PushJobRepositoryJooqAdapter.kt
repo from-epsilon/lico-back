@@ -6,7 +6,6 @@ import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
 import com.epsilon.nagginggnome.generated.jooq.tables.references.PUSH_JOBS
-import com.epsilon.nagginggnome.generated.jooq.tables.references.PUSH_JOB_BATCHES
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import org.springframework.stereotype.Repository
@@ -20,23 +19,6 @@ import java.util.UUID
 class PushJobRepositoryJooqAdapter(
     private val dsl: DSLContext
 ) : PushJobRepository {
-
-    /**
-     * 배치 키를 멱등하게 삽입
-     * - (user_id, batch_id)가 최초면 1 row 삽입, true 반환
-     * - 이미 존재하면 do nothing, 0 row, false 반환
-     */
-    override fun tryInsertBatchKey(userId: UUID, batchId: UUID): Boolean {
-        val insertedRows: Int =
-            dsl.insertInto(PUSH_JOB_BATCHES)
-                .set(PUSH_JOB_BATCHES.USER_ID, userId)
-                .set(PUSH_JOB_BATCHES.BATCH_ID, batchId)
-                .onConflict(PUSH_JOB_BATCHES.USER_ID, PUSH_JOB_BATCHES.BATCH_ID)
-                .doNothing()
-                .execute()
-
-        return insertedRows == 1
-    }
 
     /**
      * 특정 유저의 특정 시간 범위에 있는 READY 작업을 삭제
@@ -63,7 +45,6 @@ class PushJobRepositoryJooqAdapter(
      */
     override fun insertPushJob(
         userId: UUID,
-        batchId: UUID,
         models: List<PushJobCreateModel>
     ): Int {
         models.takeIf { it.isNotEmpty() } ?: return 0
@@ -74,12 +55,12 @@ class PushJobRepositoryJooqAdapter(
             val records = chunk.map { model ->
                 dsl.newRecord(PUSH_JOBS).apply {
                     set(PUSH_JOBS.USER_ID, userId)
-                    set(PUSH_JOBS.BATCH_ID, batchId)
                     set(PUSH_JOBS.PLAN_ID, model.planId)
                     set(PUSH_JOBS.TYPE, model.type.name)
                     set(PUSH_JOBS.TITLE, model.title)
                     set(PUSH_JOBS.BODY, model.body)
                     set(PUSH_JOBS.DATA_JSON, model.dataJson?.let(JSONB::valueOf))
+                    set(PUSH_JOBS.LLM_META_JSON, model.llmMetaJson?.let(JSONB::valueOf))
                     set(PUSH_JOBS.STATUS, model.status.name)
                     set(PUSH_JOBS.SCHEDULED_AT, model.scheduledAt)
                 }

@@ -42,6 +42,11 @@ data class PushJobCreateModel(
     val dataJson: String?,
 
     /**
+     * LLM 메타 데이터(JSON 문자열)
+     */
+    val llmMetaJson: String?,
+
+    /**
      * 작업 상태
      * - 신규 적재는 READY 고정
      */

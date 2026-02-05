@@ -9,5 +9,6 @@ interface UserSummaryRepository {
         lastLoginCutoff: Instant,
         limit: Int
     ): List<UUID>
+
     fun insertSummary(userId: UUID, summaryJson: String): Int
 }
