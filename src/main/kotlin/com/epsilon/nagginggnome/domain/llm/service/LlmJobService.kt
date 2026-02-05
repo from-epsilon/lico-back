@@ -40,47 +40,38 @@ class LlmJobService(
     }
 
     fun applySuccessJobs(now: Instant, limit: Int) {
-        val jobs = llmJobRepository.lockNextSuccessUnapplied(limit)
-        applyJobs(now, jobs)
+        applyJobs(now, llmJobRepository.lockNextSuccessUnapplied(limit))
     }
 
     fun applySuccessJobById(now: Instant, id: Long) {
-        val job = llmJobRepository.lockSuccessUnappliedById(id) ?: return
-        applyJobs(now, listOf(job))
+        llmJobRepository.lockSuccessUnappliedById(id)?.let { job ->
+            applyJobs(now, listOf(job))
+        }
     }
 
     private fun applyJobs(now: Instant, jobs: List<LlmJobApplyModel>) {
-        if (jobs.isEmpty()) {
-            return
+        val appliedIds = jobs.mapNotNull { job ->
+            runCatching { applyJob(job) }
+                .getOrNull()
+                ?.takeIf { it }
+                ?.let { job.id }
         }
-
-        val appliedIds = mutableListOf<Long>()
-
-        jobs.forEach { job ->
-            runCatching {
-                when (job.type) {
-                    LlmJobType.USER_SUMMARY -> {
-                        val input = objectMapper.readValue(
-                            job.inputJson,
-                            UserSummaryJobInput::class.java
-                        )
-                        userSummaryRepository.insertSummary(
-                            userId = input.userId,
-                            summaryJson = job.outputJson
-                        )
-                        true
-                    }
-                    else -> false
-                }
-            }.onSuccess {
-                if (it == true) {
-                    appliedIds.add(job.id)
-                }
-            }
-        }
-
-        if (appliedIds.isNotEmpty()) {
-            llmJobRepository.markApplied(appliedIds, now)
-        }
+        if (appliedIds.isNotEmpty()) llmJobRepository.markApplied(appliedIds, now)
     }
+
+    private fun applyJob(job: LlmJobApplyModel): Boolean =
+        when (job.type) {
+            LlmJobType.USER_SUMMARY -> {
+                val input = objectMapper.readValue(
+                    job.inputJson,
+                    UserSummaryJobInput::class.java
+                )
+                userSummaryRepository.insertSummary(
+                    userId = input.userId,
+                    summaryJson = job.outputJson
+                )
+                true
+            }
+            else -> false
+        }
 }
