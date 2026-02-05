@@ -45,6 +45,9 @@ security:
   token-hash:
     pepper: ${TOKEN_HASH_PEPPER}
 
+user:
+  dormancy-last-login-days: 30
+
 management:
   server:
     port: 8000
