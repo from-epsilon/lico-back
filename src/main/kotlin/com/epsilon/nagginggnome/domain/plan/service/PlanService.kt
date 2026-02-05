@@ -8,7 +8,9 @@ import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
+import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
+import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
@@ -16,13 +18,16 @@ import org.springframework.dao.DataIntegrityViolationException
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.util.UUID
 
 @Service
 class PlanService(
     private val userRepository: UserRepository,
     private val planRepository: PlanRepository,
-    private val planSnapshotRepository: PlanSnapshotRepository
+    private val planSnapshotRepository: PlanSnapshotRepository,
+    private val userSettingRepository: UserSettingRepository,
+    private val llmJobService: LlmJobService
 ) {
 
     /**
@@ -107,6 +112,7 @@ class PlanService(
 
         val planPayload = req.plan
         val snapshot = req.snapshot
+        val shouldRefreshPushBatch = shouldRefreshPushBatch(plan, planPayload)
 
         // 요청 버전 검증 및 멱등 처리
         val requestedVersion = planPayload.version
@@ -162,6 +168,15 @@ class PlanService(
         } catch (_: DataIntegrityViolationException) {
             // 멱등 성공 처리
         }
+        if (shouldRefreshPushBatch) {
+            userSettingRepository.findById(userId)?.let { setting ->
+                llmJobService.enqueuePushBatchForUser(
+                    now = Instant.now(),
+                    userId = userId,
+                    timezone = setting.timezone
+                )
+            }
+        }
         return PlanUpsertResponse(
             planId = plan.id,
             version = plan.currentVersion,
@@ -178,6 +193,16 @@ class PlanService(
 
         // 플랜 삭제 멱등 처리
         plan.takeIf { !it.isDeleted() }?.softDelete()
+    }
+
+    private fun shouldRefreshPushBatch(
+        plan: Plan,
+        payload: PlanUpdateRequest.PlanPayload
+    ): Boolean {
+        val actionChanged = payload.action?.let { it != plan.action } ?: false
+        val rruleChanged = payload.rrule?.let { it != plan.rrule } ?: false
+        val leadTimeChanged = payload.leadTime?.let { it != plan.leadTime } ?: false
+        return actionChanged || rruleChanged || leadTimeChanged
     }
 }
 

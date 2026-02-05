@@ -20,6 +20,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.UUID
 
 @Service
 class LlmJobService(
@@ -75,6 +76,21 @@ class LlmJobService(
         }
 
         llmJobRepository.insertLlmJobs(models)
+    }
+
+    fun enqueuePushBatchForUser(now: Instant, userId: UUID, timezone: String) {
+        val timeWindow = buildTimeWindow(now, ZoneId.of(timezone))
+        val model = LlmJobCreateModel(
+            type = LlmJobType.PUSH_BATCH,
+            status = LlmJobStatus.PENDING,
+            inputJson = objectMapper.writeValueAsString(
+                PushBatchJobInput(
+                    userId = userId,
+                    timeWindow = timeWindow
+                )
+            )
+        )
+        llmJobRepository.insertLlmJobs(listOf(model))
     }
 
     @Transactional
