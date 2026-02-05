@@ -1,10 +1,9 @@
-package com.epsilon.nagginggnome.batch.push
+package com.epsilon.nagginggnome.domain.push.service
 
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.FcmTokenRepository
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
-import com.epsilon.nagginggnome.domain.push.service.FcmPushService
 import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.infra.fcm.converter.FcmDataJsonConverter
@@ -14,7 +13,7 @@ import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 @Service
-class PushJobBatchRunner(
+class PushJobBatchService(
     private val pushJobRepository: PushJobRepository,
     private val fcmTokenRepository: FcmTokenRepository,
     private val fcmPushService: FcmPushService,
@@ -22,9 +21,9 @@ class PushJobBatchRunner(
 ) {
 
     /**
-     * 배치 1회 실행
+     * 처리 가능한 푸시 작업 실행
      */
-    fun runOnce(now: Instant, limit: Int) {
+    fun processReadyJobs(now: Instant, limit: Int) {
 
         // 처리 대상 조회 + RUNNING 전환
         val jobs: List<PushJobProcessingModel> = lockAndMarkRunning(now, limit)
@@ -91,5 +90,3 @@ class PushJobBatchRunner(
         }
     }
 }
-
-

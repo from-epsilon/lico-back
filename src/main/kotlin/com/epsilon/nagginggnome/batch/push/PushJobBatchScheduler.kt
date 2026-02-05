@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.batch.push
 
+import com.epsilon.nagginggnome.domain.push.service.PushJobBatchService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
@@ -13,7 +14,7 @@ import java.time.Instant
 @Profile("batch")
 @Component
 class PushJobBatchScheduler(
-    private val pushJobBatchRunner: PushJobBatchRunner
+    private val pushJobBatchService: PushJobBatchService
 ) {
 
     /**
@@ -29,7 +30,7 @@ class PushJobBatchScheduler(
         zone = "Asia/Seoul"
     )
     fun runEveryMinute() {
-        pushJobBatchRunner.runOnce(
+        pushJobBatchService.processReadyJobs(
             now = Instant.now(),
             limit = 100
         )

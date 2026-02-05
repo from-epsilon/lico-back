@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.batch.llm
 
+import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.Scheduled
@@ -13,7 +14,7 @@ import java.time.Instant
 @Profile("batch")
 @Component
 class LlmJobEnqueueScheduler(
-    private val llmJobEnqueueRunner: LlmJobEnqueueRunner
+    private val llmJobService: LlmJobService
 ) {
 
     /**
@@ -29,7 +30,7 @@ class LlmJobEnqueueScheduler(
         zone = "Asia/Seoul"
     )
     fun runEveryMorning() {
-        llmJobEnqueueRunner.runOnce(
+        llmJobService.enqueueUserSummaries(
             now = Instant.now(),
             limit = 500
         )
