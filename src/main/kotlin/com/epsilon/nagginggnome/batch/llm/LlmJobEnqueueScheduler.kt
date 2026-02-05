@@ -29,8 +29,27 @@ class LlmJobEnqueueScheduler(
         cron = "0 0 9 * * *",
         zone = "Asia/Seoul"
     )
-    fun runEveryMorning() {
+    fun enqueueUserSummariesEveryMorning() {
         llmJobService.enqueueUserSummaries(
+            now = Instant.now(),
+            limit = 500
+        )
+    }
+
+    /**
+     * 매일 아침 실행
+     */
+    @SchedulerLock(
+        name = "llmJobPushBatchEnqueueScheduler",
+        lockAtMostFor = "PT10M",
+        lockAtLeastFor = "PT5S"
+    )
+    @Scheduled(
+        cron = "0 0 9 * * *",
+        zone = "Asia/Seoul"
+    )
+    fun enqueuePushBatchEveryMorning() {
+        llmJobService.enqueuePushBatches(
             now = Instant.now(),
             limit = 500
         )
