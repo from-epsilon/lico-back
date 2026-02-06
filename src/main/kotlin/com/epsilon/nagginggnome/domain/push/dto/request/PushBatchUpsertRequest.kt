@@ -15,8 +15,8 @@ data class PushBatchUpsertRequest(
 ) {
 
     data class TimeWindow(
-        val from: Instant,
-        val to: Instant
+        val start: Instant,
+        val end: Instant
     )
 
     data class Message(

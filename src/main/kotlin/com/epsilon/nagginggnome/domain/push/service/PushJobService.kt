@@ -21,7 +21,7 @@ class PushJobService(
      */
     @Transactional
     fun pushBatchUpsert(userId: UUID, req: PushBatchUpsertRequest) {
-        pushJobRepository.deletePushJobByUserAndRange(userId, req.timeWindow.from, req.timeWindow.to)
+        pushJobRepository.deletePushJobByUserAndRange(userId, req.timeWindow.start, req.timeWindow.end)
 
         val createModels = req.pushes.map { message ->
             PushJobCreateModel(

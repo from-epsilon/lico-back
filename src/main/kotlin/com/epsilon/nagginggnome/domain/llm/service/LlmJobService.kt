@@ -131,9 +131,9 @@ class LlmJobService(
 
     private fun buildTimeWindow(now: Instant, zoneId: ZoneId): PushBatchJobInput.TimeWindow {
         val zonedNow = ZonedDateTime.ofInstant(now, zoneId)
-        val from = zonedNow.toInstant()
-        val to = zonedNow.plusDays(3).minusSeconds(1).toInstant()
-        return PushBatchJobInput.TimeWindow(from, to)
+        val start = zonedNow.toInstant()
+        val end = zonedNow.plusDays(3).minusSeconds(1).toInstant()
+        return PushBatchJobInput.TimeWindow(start, end)
     }
 
 }
