@@ -10,13 +10,13 @@ import java.util.UUID
 data class PushBatchUpsertRequest(
     val userId: UUID,
     val timeWindow: TimeWindow,
-    val messages: List<Message>,
+    val pushes: List<Message>,
     val meta: Meta?
 ) {
 
     data class TimeWindow(
-        val from: Instant,
-        val to: Instant
+        val start: Instant,
+        val end: Instant
     )
 
     data class Message(

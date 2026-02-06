@@ -11,7 +11,7 @@ data class PushBatchJobInput(
     val timeWindow: TimeWindow
 ) {
     data class TimeWindow(
-        val from: Instant,
-        val to: Instant
+        val start: Instant,
+        val end: Instant
     )
 }
