@@ -30,6 +30,15 @@ enum class PlanErrorCode(
     ),
 
     /**
+     * 플랜 상태가 유효하지 않은 경우
+     */
+    PLAN_INVALID_STATE(
+        code = "PLAN_409_INVALID_STATE",
+        status = HttpStatus.CONFLICT,
+        message = "Plan state is invalid."
+    ),
+
+    /**
      * 플랜 버전이 오래된 요청인 경우
      */
     PLAN_VERSION_STALE(
