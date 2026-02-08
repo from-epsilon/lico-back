@@ -12,4 +12,8 @@ class PlanSnapshotRepositoryJpaAdapter(
     override fun save(entity: PlanSnapshot): PlanSnapshot {
         return jpa.save(entity)
     }
+
+    override fun findLatestByPlanId(planId: java.util.UUID): PlanSnapshot? {
+        return jpa.findTopByPlanIdOrderByVersionDesc(planId)
+    }
 }

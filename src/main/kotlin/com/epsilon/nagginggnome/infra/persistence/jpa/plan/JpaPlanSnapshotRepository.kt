@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface JpaPlanSnapshotRepository : JpaRepository<PlanSnapshot, UUID>
+interface JpaPlanSnapshotRepository : JpaRepository<PlanSnapshot, UUID> {
+    fun findTopByPlanIdOrderByVersionDesc(planId: UUID): PlanSnapshot?
+}
