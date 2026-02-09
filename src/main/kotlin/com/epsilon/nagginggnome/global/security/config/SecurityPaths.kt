@@ -45,7 +45,12 @@ enum class SecurityPaths(
     /**
      * 에러 엔드포인트
      */
-    ERROR("/error", true);
+    ERROR("/error", true),
+
+    /**
+     * 공개 테스트용 FCM 토큰 입력
+     */
+    PUBLIC_FCM_TOKEN("/v1/public/fcm-tokens", true);
 
     fun pattern(): String = rawPattern
 
