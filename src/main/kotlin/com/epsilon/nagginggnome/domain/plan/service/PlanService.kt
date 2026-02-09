@@ -1,5 +1,6 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
+import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
@@ -8,14 +9,12 @@ import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
-import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.constant.code.UserErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.dao.DataIntegrityViolationException
-
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -35,14 +34,20 @@ class PlanService(
      */
     @Transactional
     fun createPlan(userId: UUID, req: PlanCreateRequest): PlanUpsertResponse {
-        val user = userRepository.findById(userId)
-            ?: throw ApiException(UserErrorCode.USER_NOT_FOUND)
+        val user = userRepository.findById(
+            userId = userId
+        ) ?: throw ApiException(
+            errorCode = UserErrorCode.USER_NOT_FOUND
+        )
 
         val plan = req.plan
         val snapshot = req.snapshot
 
         // 멱등 처리
-        planRepository.findByIdAndUserId(plan.id, userId)?.let { existing ->
+        planRepository.findByIdAndUserId(
+            planId = plan.id,
+            userId = userId
+        )?.let { existing ->
             return PlanUpsertResponse(
                 planId = existing.id,
                 version = existing.currentVersion,
@@ -54,7 +59,7 @@ class PlanService(
         try {
             // 플랜 생성
             val newPlan = planRepository.save(
-                Plan(
+                plan = Plan(
                     planId = plan.id,
                     user = user,
                     action = plan.action,
@@ -73,7 +78,7 @@ class PlanService(
 
             // 스냅샷 생성
             planSnapshotRepository.save(
-                PlanSnapshot(
+                entity = PlanSnapshot(
                     planId = newPlan.id,
                     type = snapshot.type,
                     version = snapshot.version,
@@ -90,7 +95,10 @@ class PlanService(
             )
         } catch (_: DataIntegrityViolationException) {
             // 레이스 컨디션 대응
-            planRepository.findByIdAndUserId(plan.id, userId)?.let { existing ->
+            planRepository.findByIdAndUserId(
+                planId = plan.id,
+                userId = userId
+            )?.let { existing ->
                 return PlanUpsertResponse(
                     planId = existing.id,
                     version = existing.currentVersion,
@@ -98,7 +106,9 @@ class PlanService(
                     status = existing.status,
                 )
             }
-            throw ApiException(PlanErrorCode.PLAN_CREATE_FAILED)
+            throw ApiException(
+                errorCode = PlanErrorCode.PLAN_CREATE_FAILED
+            )
         }
     }
 
@@ -107,12 +117,19 @@ class PlanService(
      */
     @Transactional
     fun updatePlan(userId: UUID, planId: UUID, req: PlanUpdateRequest): PlanUpsertResponse {
-        val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+        val plan = planRepository.findByIdAndUserId(
+            planId = planId,
+            userId = userId
+        ) ?: throw ApiException(
+            errorCode = PlanErrorCode.PLAN_NOT_FOUND
+        )
 
         val planPayload = req.plan
         val snapshot = req.snapshot
-        val shouldRefreshPushBatch = shouldRefreshPushBatch(plan, planPayload)
+        val shouldRefreshPushBatch = shouldRefreshPushBatch(
+            plan = plan,
+            payload = planPayload
+        )
 
         // 요청 버전 검증 및 멱등 처리
         val requestedVersion = planPayload.version
@@ -120,7 +137,9 @@ class PlanService(
 
         // 이미 지난 버전이면 적용 금지
         if (requestedVersion < currentVersion) {
-            throw ApiException(PlanErrorCode.PLAN_VERSION_STALE)
+            throw ApiException(
+                errorCode = PlanErrorCode.PLAN_VERSION_STALE
+            )
         }
 
         // 멱등 재시도
@@ -136,7 +155,9 @@ class PlanService(
         // "현재 + 1"이 아니면 누락/순서 꼬임으로 판단
         // expectedVersion(currentVersion + 1)부터 재전송하도록 유도
         if (requestedVersion != currentVersion + 1) {
-            throw ApiException(PlanErrorCode.PLAN_VERSION_GAP)
+            throw ApiException(
+                errorCode = PlanErrorCode.PLAN_VERSION_GAP
+            )
         }
 
         // 플랜 수정
@@ -157,7 +178,7 @@ class PlanService(
         try {
             // 스냅샷 생성
             planSnapshotRepository.save(
-                PlanSnapshot(
+                entity = PlanSnapshot(
                     planId = planId,
                     type = snapshot.type,
                     version = requestedVersion,
@@ -169,7 +190,9 @@ class PlanService(
             // 멱등 성공 처리
         }
         if (shouldRefreshPushBatch) {
-            userSettingRepository.findById(userId)?.let { setting ->
+            userSettingRepository.findById(
+                userId = userId
+            )?.let { setting ->
                 llmJobService.enqueuePushBatchForUser(
                     now = Instant.now(),
                     userId = userId,
@@ -188,8 +211,12 @@ class PlanService(
     @Transactional
     fun deletePlan(userId: UUID, planId: UUID) {
         // 기존 플랜 조회
-        val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+        val plan = planRepository.findByIdAndUserId(
+            planId = planId,
+            userId = userId
+        ) ?: throw ApiException(
+            errorCode = PlanErrorCode.PLAN_NOT_FOUND
+        )
 
         // 플랜 삭제 멱등 처리
         plan.takeIf { !it.isDeleted() }?.softDelete()
@@ -205,7 +232,4 @@ class PlanService(
         return actionChanged || rruleChanged || leadTimeChanged
     }
 }
-
-
-
 

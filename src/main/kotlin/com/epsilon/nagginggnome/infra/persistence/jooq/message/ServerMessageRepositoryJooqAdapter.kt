@@ -66,7 +66,10 @@ class ServerMessageRepositoryJooqAdapter(
                 .from(SERVER_MESSAGES)
                 .where(SERVER_MESSAGES.ID.eq(id))
                 .and(SERVER_MESSAGES.USER_ID.eq(userId))
-                .and(SERVER_MESSAGES.PLAN_ID.eq(planId))
+                .and(
+                    SERVER_MESSAGES.PLAN_ID.eq(planId)
+                        .or(SERVER_MESSAGES.PLAN_ID.isNull)
+                )
         )
     }
 }

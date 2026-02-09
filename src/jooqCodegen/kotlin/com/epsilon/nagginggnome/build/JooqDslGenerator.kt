@@ -2,7 +2,12 @@ package com.epsilon.nagginggnome.build
 
 import org.flywaydb.core.Flyway
 import org.jooq.codegen.GenerationTool
-import org.jooq.meta.jaxb.*
+import org.jooq.meta.jaxb.Configuration
+import org.jooq.meta.jaxb.Database
+import org.jooq.meta.jaxb.ForcedType
+import org.jooq.meta.jaxb.Generate
+import org.jooq.meta.jaxb.Generator
+import org.jooq.meta.jaxb.Jdbc
 import org.jooq.meta.jaxb.Target
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -11,7 +16,9 @@ object JooqDslGenerator {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val outputDir: String = args.getOrNull(0)
+        val outputDir: String = args.getOrNull(
+            index = 0
+        )
             ?.takeIf { it.isNotBlank() }
             ?: throw IllegalArgumentException("An output directory path (args[0]) is required.")
         val imageName: DockerImageName = DockerImageName.parse("postgres:18-alpine")

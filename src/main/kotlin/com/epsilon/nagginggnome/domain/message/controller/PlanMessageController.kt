@@ -33,8 +33,16 @@ class PlanMessageController(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: UUID
     ): ResponseEntity<ApiResponse<List<ServerMessageResponse>>> {
-        val res = serverMessageService.getPlanServerMessages(userId, planId)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+        val res = serverMessageService.getPlanServerMessages(
+            userId = userId,
+            planId = planId
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS,
+                data = res
+            )
+        )
     }
 
     @PostMapping("/{planId}/messages")
@@ -43,8 +51,16 @@ class PlanMessageController(
         @PathVariable planId: UUID,
         @RequestBody req: UserMessageCreateRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
-        userMessageService.create(userId, planId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+        userMessageService.create(
+            userId = userId,
+            planId = planId,
+            req = req
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS
+            )
+        )
     }
 
     @PutMapping("/{planId}/messages/{messageId}")
@@ -54,7 +70,16 @@ class PlanMessageController(
         @PathVariable messageId: UUID,
         @RequestBody req: UserMessageUpdateRequest
     ): ResponseEntity<ApiResponse<Nothing>> {
-        userMessageService.update(userId, planId, messageId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+        userMessageService.update(
+            userId = userId,
+            planId = planId,
+            messageId = messageId,
+            req = req
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS
+            )
+        )
     }
 }

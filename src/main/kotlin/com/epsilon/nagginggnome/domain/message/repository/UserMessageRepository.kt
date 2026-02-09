@@ -1,16 +1,15 @@
 package com.epsilon.nagginggnome.domain.message.repository
 
 import com.epsilon.nagginggnome.domain.message.repository.model.UserMessageCreateModel
-import com.epsilon.nagginggnome.domain.message.repository.model.UserMessageQueryModel
 import java.time.Instant
 import java.util.UUID
 
 interface UserMessageRepository {
-    fun insert(model: UserMessageCreateModel): Long
+    fun insert(model: UserMessageCreateModel)
 
-    fun existsByClientMessageId(clientMessageId: UUID): Boolean
+    fun existsById(id: UUID): Boolean
 
-    fun findByClientMessageIdAndPlanId(clientMessageId: UUID, planId: UUID): UserMessageQueryModel?
+    fun existsByIdAndPlanId(id: UUID, planId: UUID): Boolean
 
-    fun updateContent(clientMessageId: UUID, planId: UUID, body: String, sentAt: Instant?): Int
+    fun updateContent(id: UUID, planId: UUID, body: String, sentAt: Instant?): Int
 }
