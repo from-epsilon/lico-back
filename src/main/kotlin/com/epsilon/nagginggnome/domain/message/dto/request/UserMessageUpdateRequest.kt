@@ -7,5 +7,5 @@ import java.time.Instant
  */
 data class UserMessageUpdateRequest(
     val body: String,
-    val sentAt: Instant?
+    val sentAt: Instant
 )

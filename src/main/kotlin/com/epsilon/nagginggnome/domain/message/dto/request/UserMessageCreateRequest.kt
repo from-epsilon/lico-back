@@ -11,5 +11,5 @@ data class UserMessageCreateRequest(
     val planId: UUID,
     val sentAt: Instant,
     val body: String,
-    val serverMessageId: Long
+    val serverMessageId: Long?
 )
