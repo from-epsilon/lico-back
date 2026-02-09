@@ -41,7 +41,7 @@ class UserMessageRepositoryJooqAdapter(
         )
     }
 
-    override fun updateContent(id: UUID, planId: UUID, body: String, sentAt: Instant): Int {
+    override fun updateContent(id: UUID, planId: UUID, body: String, sentAt: Instant?): Int {
         return dsl.update(USER_MESSAGES)
             .set(USER_MESSAGES.BODY, body)
             .set(USER_MESSAGES.SENT_AT, sentAt)

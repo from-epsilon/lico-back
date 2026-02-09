@@ -11,5 +11,5 @@ interface UserMessageRepository {
 
     fun existsByIdAndPlanId(id: UUID, planId: UUID): Boolean
 
-    fun updateContent(id: UUID, planId: UUID, body: String, sentAt: Instant): Int
+    fun updateContent(id: UUID, planId: UUID, body: String, sentAt: Instant?): Int
 }

@@ -8,6 +8,6 @@ data class UserMessageCreateModel(
     val userId: UUID,
     val planId: UUID,
     val body: String,
-    val serverMessageId: Long?,
+    val serverMessageId: Long,
     val sentAt: Instant
 )

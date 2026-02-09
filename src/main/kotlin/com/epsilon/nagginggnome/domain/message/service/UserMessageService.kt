@@ -24,33 +24,41 @@ class UserMessageService(
     @Transactional
     fun create(userId: UUID, planId: UUID, req: UserMessageCreateRequest) {
         if (req.planId != planId) {
-            throw ApiException(CommonErrorCode.BAD_REQUEST)
+            throw ApiException(
+                errorCode = CommonErrorCode.BAD_REQUEST
+            )
         }
 
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+            ?: throw ApiException(
+                errorCode = PlanErrorCode.PLAN_NOT_FOUND
+            )
 
         if (plan.isDeleted()) {
-            throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
-        }
-
-        if (userMessageRepository.existsById(req.id)) {
-            throw ApiException(MessageErrorCode.DUPLICATE_MESSAGE_ID)
-        }
-
-        if (req.serverMessageId != null) {
-            val exists = serverMessageRepository.existsByIdAndUserIdAndPlanId(
-                req.serverMessageId,
-                userId,
-                planId
+            throw ApiException(
+                errorCode = PlanErrorCode.PLAN_NOT_FOUND
             )
-            if (!exists) {
-                throw ApiException(MessageErrorCode.SERVER_MESSAGE_NOT_FOUND)
-            }
+        }
+
+        if (userMessageRepository.existsById(id = req.id)) {
+            throw ApiException(
+                errorCode = MessageErrorCode.DUPLICATE_MESSAGE_ID
+            )
+        }
+
+        val exists = serverMessageRepository.existsByIdAndUserIdAndPlanId(
+            id = req.serverMessageId,
+            userId = userId,
+            planId = planId
+        )
+        if (!exists) {
+            throw ApiException(
+                errorCode = MessageErrorCode.SERVER_MESSAGE_NOT_FOUND
+            )
         }
 
         userMessageRepository.insert(
-            UserMessageCreateModel(
+            model = UserMessageCreateModel(
                 id = req.id,
                 userId = userId,
                 planId = planId,
@@ -64,20 +72,36 @@ class UserMessageService(
     @Transactional
     fun update(userId: UUID, planId: UUID, messageId: UUID, req: UserMessageUpdateRequest) {
         val plan = planRepository.findByIdAndUserId(planId = planId, userId = userId)
-            ?: throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+            ?: throw ApiException(
+                errorCode = PlanErrorCode.PLAN_NOT_FOUND
+            )
 
         if (plan.isDeleted()) {
-            throw ApiException(PlanErrorCode.PLAN_NOT_FOUND)
+            throw ApiException(
+                errorCode = PlanErrorCode.PLAN_NOT_FOUND
+            )
         }
 
-        val exists = userMessageRepository.existsByIdAndPlanId(messageId, planId)
+        val exists = userMessageRepository.existsByIdAndPlanId(
+            id = messageId,
+            planId = planId
+        )
         if (!exists) {
-            throw ApiException(MessageErrorCode.MESSAGE_NOT_FOUND)
+            throw ApiException(
+                errorCode = MessageErrorCode.MESSAGE_NOT_FOUND
+            )
         }
 
-        val updated = userMessageRepository.updateContent(messageId, planId, req.body, req.sentAt)
+        val updated = userMessageRepository.updateContent(
+            id = messageId,
+            planId = planId,
+            body = req.body,
+            sentAt = req.sentAt
+        )
         if (updated == 0) {
-            throw ApiException(MessageErrorCode.MESSAGE_NOT_FOUND)
+            throw ApiException(
+                errorCode = MessageErrorCode.MESSAGE_NOT_FOUND
+            )
         }
     }
 }
