@@ -34,8 +34,16 @@ class PlanController(
         @AuthenticationPrincipal userId: UUID,
         @RequestBody req: PlanCreateRequest
     ): ResponseEntity<ApiResponse<PlanUpsertResponse>> {
-        val res = planService.createPlan(userId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+        val res = planService.createPlan(
+            userId = userId,
+            req = req
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS,
+                data = res
+            )
+        )
     }
 
     /**
@@ -47,8 +55,17 @@ class PlanController(
         @PathVariable planId: UUID,
         @RequestBody req: PlanUpdateRequest
     ): ResponseEntity<ApiResponse<PlanUpsertResponse>> {
-        val res = planService.updatePlan(userId, planId, req)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS, res))
+        val res = planService.updatePlan(
+            userId = userId,
+            planId = planId,
+            req = req
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS,
+                data = res
+            )
+        )
     }
 
     /**
@@ -59,7 +76,14 @@ class PlanController(
         @AuthenticationPrincipal userId: UUID,
         @PathVariable planId: UUID
     ): ResponseEntity<ApiResponse<Nothing>> {
-        planService.deletePlan(userId, planId)
-        return ResponseEntity.ok(ApiResponse.success(CommonSuccessCode.SUCCESS))
+        planService.deletePlan(
+            userId = userId,
+            planId = planId
+        )
+        return ResponseEntity.ok(
+            ApiResponse.success(
+                successCode = CommonSuccessCode.SUCCESS
+            )
+        )
     }
 }

@@ -21,7 +21,11 @@ class PushJobService(
      */
     @Transactional
     fun pushBatchUpsert(userId: UUID, req: PushBatchUpsertRequest) {
-        pushJobRepository.deletePushJobByUserAndRange(userId, req.timeWindow.start, req.timeWindow.end)
+        pushJobRepository.deletePushJobByUserAndRange(
+            userId = userId,
+            from = req.timeWindow.start,
+            to = req.timeWindow.end
+        )
 
         val createModels = req.pushes.map { message ->
             PushJobCreateModel(
@@ -31,13 +35,19 @@ class PushJobService(
                 title = message.title,
                 body = message.body,
                 dataJson = null,
-                llmMetaJson = buildLlmMetaJson(req.meta, message.intent),
+                llmMetaJson = buildLlmMetaJson(
+                    meta = req.meta,
+                    intent = message.intent
+                ),
                 status = PushJobStatus.READY,
                 scheduledAt = message.scheduledAt
             )
         }
 
-        pushJobRepository.insertPushJob(userId, createModels)
+        pushJobRepository.insertPushJob(
+            userId = userId,
+            models = createModels
+        )
     }
 
     private fun buildLlmMetaJson(
@@ -52,6 +62,8 @@ class PushJobService(
             }
             intent?.let { put(LlmMetaData.INTENT.key, it) }
         }
-        return payload.takeIf { it.isNotEmpty() }?.let(objectMapper::writeValueAsString)
+        return payload.takeIf { it.isNotEmpty() }?.let(
+            objectMapper::writeValueAsString
+        )
     }
 }

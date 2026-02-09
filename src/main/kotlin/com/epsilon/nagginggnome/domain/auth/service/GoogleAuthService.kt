@@ -40,21 +40,38 @@ class GoogleAuthService(
     @Transactional
     fun loginOrSignUp(req: SocialLoginRequest): SocialLoginResponse {
         // Google ID Token 검증 및 디코딩 수행
-        val token = googleIdTokenVerifier.verifyAndDecode(req.idToken)
+        val token = googleIdTokenVerifier.verifyAndDecode(
+            idToken = req.idToken
+        )
 
         // Google 고유 식별자(sub) 추출
         val providerUserId = token.subject
             ?.takeIf { it.isNotBlank() }
-            ?: throw ApiException(CommonErrorCode.UNAUTHORIZED)
+            ?: throw ApiException(
+                errorCode = CommonErrorCode.UNAUTHORIZED
+            )
 
         // Google이 제공한 이메일 클레임 추출
         val emailAtProvider = token.getClaimAsString(JwtConstants.CLAIM_EMAIL)
 
         // 기존 소셜 계정 존재 시 로그인 처리, 없으면 가입 처리
         return userSocialAccountRepository
-            .findByProviderAndProviderUserId(SocialProvider.GOOGLE, providerUserId)
-            ?.let { login(it.user, emailAtProvider, Instant.now()) }
-            ?: signUp(providerUserId, emailAtProvider, Instant.now())
+            .findByProviderAndProviderUserId(
+                provider = SocialProvider.GOOGLE,
+                providerUserId = providerUserId
+            )
+            ?.let {
+                login(
+                    user = it.user,
+                    emailAtProvider = emailAtProvider,
+                    now = Instant.now()
+                )
+            }
+            ?: signUp(
+                providerUserId = providerUserId,
+                emailAtProvider = emailAtProvider,
+                now = Instant.now()
+            )
     }
 
     /**
@@ -62,7 +79,9 @@ class GoogleAuthService(
      */
     private fun login(user: User, emailAtProvider: String?, now: Instant): SocialLoginResponse {
         // 로그인 시각 갱신
-        user.updateToLastLogin(now)
+        user.updateToLastLogin(
+            newLastLoginAt = now
+        )
 
         // 사용자 이메일이 비어있고 provider 이메일이 있으면 보정
         if (user.email.isNullOrBlank()) {
@@ -72,7 +91,11 @@ class GoogleAuthService(
         }
 
         // 토큰 발급 및 응답 생성
-        return issueTokens(user, isNewUser = false, now)
+        return issueTokens(
+            user = user,
+            isNewUser = false,
+            now = now
+        )
     }
 
     /**
@@ -82,7 +105,7 @@ class GoogleAuthService(
         try {
             // 신규 유저 생성 및 저장
             val newUser = userRepository.save(
-                User(
+                user = User(
                     email = emailAtProvider,
                     lastLoginAt = now
                 )
@@ -90,7 +113,7 @@ class GoogleAuthService(
 
             // 소셜 계정 연결 엔티티 생성 및 저장
             userSocialAccountRepository.save(
-                UserSocialAccount(
+                entity = UserSocialAccount(
                     user = newUser,
                     provider = SocialProvider.GOOGLE,
                     providerUserId = providerUserId,
@@ -99,27 +122,48 @@ class GoogleAuthService(
             )
 
             // 토큰 발급 및 응답 생성
-            issueTokens(newUser, isNewUser = true, now)
+            issueTokens(
+                user = newUser,
+                isNewUser = true,
+                now = now
+            )
 
         } catch (_: DataIntegrityViolationException) {
             val existingAccount = userSocialAccountRepository.findByProviderAndProviderUserId(
-                SocialProvider.GOOGLE,
-                providerUserId
-            ) ?: throw ApiException(CommonErrorCode.CONFLICT)
+                provider = SocialProvider.GOOGLE,
+                providerUserId = providerUserId
+            ) ?: throw ApiException(
+                errorCode = CommonErrorCode.CONFLICT
+            )
 
-            login(existingAccount.user, emailAtProvider, now)
+            login(
+                user = existingAccount.user,
+                emailAtProvider = emailAtProvider,
+                now = now
+            )
         }
 
 
     private fun issueTokens(user: User, isNewUser: Boolean, now: Instant): SocialLoginResponse {
-        val userId = user.id ?: throw ApiException(CommonErrorCode.INTERNAL_SERVER_ERROR)
+        val userId = user.id ?: throw ApiException(
+            errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR
+        )
 
         // AccessToken, RefreshToken 발급(issuedAt/exp 일관성을 위해 now 공유)
-        val issuedAccess = jwtProvider.generateAccessToken(userId, user.role, now)
-        val issuedRefresh = jwtProvider.generateRefreshToken(userId, now)
+        val issuedAccess = jwtProvider.generateAccessToken(
+            userId = userId,
+            role = user.role,
+            now = now
+        )
+        val issuedRefresh = jwtProvider.generateRefreshToken(
+            userId = userId,
+            now = now
+        )
 
         // Refresh Token은 원문 저장이 아니라 해시만 저장
-        val refreshTokenHash = tokenHasher.hash(issuedRefresh.token)
+        val refreshTokenHash = tokenHasher.hash(
+            token = issuedRefresh.token
+        )
 
         refreshTokenRepository.save(
             userId = userId,
@@ -134,5 +178,3 @@ class GoogleAuthService(
         )
     }
 }
-
-

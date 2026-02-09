@@ -12,7 +12,6 @@ import com.epsilon.nagginggnome.domain.push.service.PushJobService
 import com.epsilon.nagginggnome.domain.user.config.UserProperties
 import com.epsilon.nagginggnome.domain.user.repository.PushBatchTargetRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
-import com.epsilon.nagginggnome.domain.user.repository.model.PushBatchTarget
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
@@ -52,17 +51,25 @@ class LlmJobService(
             )
         }
 
-        llmJobRepository.insertLlmJobs(models)
+        llmJobRepository.insertLlmJobs(
+            models = models
+        )
     }
 
     fun enqueuePushBatches(now: Instant, limit: Int) {
         val lastLoginCutoff = now.minus(Duration.ofDays(userProperties.dormancyLastLoginDays))
-        val targets = pushBatchTargetRepository.findTargetsForPushBatch(lastLoginCutoff, limit)
+        val targets = pushBatchTargetRepository.findTargetsForPushBatch(
+            lastLoginCutoff = lastLoginCutoff,
+            limit = limit
+        )
         if (targets.isEmpty()) return
 
         val models = targets.map { target ->
             val zoneId = ZoneId.of(target.timezone)
-            val timeWindow = buildTimeWindow(now, zoneId)
+            val timeWindow = buildTimeWindow(
+                now = now,
+                zoneId = zoneId
+            )
             LlmJobCreateModel(
                 type = LlmJobType.PUSH_BATCH,
                 status = LlmJobStatus.PENDING,
@@ -75,11 +82,16 @@ class LlmJobService(
             )
         }
 
-        llmJobRepository.insertLlmJobs(models)
+        llmJobRepository.insertLlmJobs(
+            models = models
+        )
     }
 
     fun enqueuePushBatchForUser(now: Instant, userId: UUID, timezone: String) {
-        val timeWindow = buildTimeWindow(now, ZoneId.of(timezone))
+        val timeWindow = buildTimeWindow(
+            now = now,
+            zoneId = ZoneId.of(timezone)
+        )
         val model = LlmJobCreateModel(
             type = LlmJobType.PUSH_BATCH,
             status = LlmJobStatus.PENDING,
@@ -90,26 +102,43 @@ class LlmJobService(
                 )
             )
         )
-        llmJobRepository.insertLlmJobs(listOf(model))
+        llmJobRepository.insertLlmJobs(
+            models = listOf(model)
+        )
     }
 
     @Transactional
     fun applySuccessJobs(now: Instant, limit: Int) {
-        applyJobs(now, llmJobRepository.lockNextSuccessUnapplied(limit))
+        applyJobs(
+            now = now,
+            jobs = llmJobRepository.lockNextSuccessUnapplied(
+                limit = limit
+            )
+        )
     }
 
     @Transactional
     fun applySuccessJobById(now: Instant, id: Long) {
-        llmJobRepository.lockSuccessUnappliedById(id)?.let { job ->
-            applyJobs(now, listOf(job))
+        llmJobRepository.lockSuccessUnappliedById(
+            id = id
+        )?.let { job ->
+            applyJobs(
+                now = now,
+                jobs = listOf(job)
+            )
         }
     }
 
     private fun applyJobs(now: Instant, jobs: List<LlmJobApplyModel>) {
         jobs.mapNotNull { job ->
-            runCatching { applyJob(job) }.getOrNull()?.let { job.id }
+            runCatching { applyJob(job = job) }.getOrNull()?.let { job.id }
         }.takeIf { it.isNotEmpty() }
-            ?.let { llmJobRepository.markApplied(it, now) }
+            ?.let {
+                llmJobRepository.markApplied(
+                    ids = it,
+                    appliedAt = now
+                )
+            }
     }
 
     private fun applyJob(job: LlmJobApplyModel) {
@@ -124,7 +153,10 @@ class LlmJobService(
 
             LlmJobType.PUSH_BATCH -> {
                 val output = objectMapper.readValue(job.outputJson, PushBatchUpsertRequest::class.java)
-                pushJobService.pushBatchUpsert(userId = output.userId, req = output)
+                pushJobService.pushBatchUpsert(
+                    userId = output.userId,
+                    req = output
+                )
             }
         }
     }
@@ -133,7 +165,10 @@ class LlmJobService(
         val zonedNow = ZonedDateTime.ofInstant(now, zoneId)
         val start = zonedNow.toInstant()
         val end = zonedNow.plusDays(3).minusSeconds(1).toInstant()
-        return PushBatchJobInput.TimeWindow(start, end)
+        return PushBatchJobInput.TimeWindow(
+            start = start,
+            end = end
+        )
     }
 
 }
