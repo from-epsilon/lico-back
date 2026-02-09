@@ -1,7 +1,7 @@
 package com.epsilon.nagginggnome.domain.push.repository.model
 
-import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.message.constant.MessageType
+import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import java.time.Instant
 import java.util.UUID
 
