@@ -33,9 +33,9 @@ class PublicPushController(
 
         val messageId = fcmPushService.sendToToken(
             token = req.fcmToken,
-            title = "FCM Test",
-            body = "Test message from lico-back",
-            data = emptyMap()
+            title = req.title,
+            body = req.body,
+            data = req.data
         )
 
         return ResponseEntity.ok(
