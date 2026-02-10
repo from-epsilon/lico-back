@@ -9,7 +9,7 @@ import java.util.UUID
  */
 data class ServerMessageResponse(
     val id: Long,
-    val planId: UUID,
+    val planId: UUID?,
     val type: MessageType,
     val createdAt: Instant,
     val replyToId: UUID?,
