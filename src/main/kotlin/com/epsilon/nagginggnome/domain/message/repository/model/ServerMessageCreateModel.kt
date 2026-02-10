@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class ServerMessageCreateModel(
     val userId: UUID,
-    val planId: UUID,
+    val planId: UUID?,
     val type: MessageType,
     val title: String,
     val body: String,

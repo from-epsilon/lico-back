@@ -9,5 +9,7 @@ interface ServerMessageRepository {
 
     fun findByUserIdAndPlanId(userId: UUID, planId: UUID): List<ServerMessageQueryModel>
 
+    fun findByUserId(userId: UUID): List<ServerMessageQueryModel>
+
     fun existsByIdAndUserIdAndPlanId(id: Long, userId: UUID, planId: UUID): Boolean
 }

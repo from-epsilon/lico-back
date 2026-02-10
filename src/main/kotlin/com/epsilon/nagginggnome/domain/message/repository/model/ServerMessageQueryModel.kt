@@ -7,7 +7,7 @@ import java.util.UUID
 data class ServerMessageQueryModel(
     val id: Long,
     val userId: UUID,
-    val planId: UUID,
+    val planId: UUID?,
     val type: MessageType,
     val title: String,
     val body: String,

@@ -45,6 +45,26 @@ class ServerMessageService(
             }
     }
 
+    @Transactional(readOnly = true)
+    fun getGlobalServerMessages(userId: UUID): List<ServerMessageResponse> {
+        return serverMessageRepository.findByUserId(userId)
+            .map { message ->
+                val dataJson = message.dataJson?.let { objectMapper.readValue(it, dataJsonTypeRef) }
+                ServerMessageResponse(
+                    id = message.id,
+                    planId = message.planId,
+                    type = message.type,
+                    createdAt = message.createdAt,
+                    replyToId = null,
+                    data = ServerMessageResponse.Payload(
+                        title = message.title,
+                        body = message.body,
+                        dataJson = dataJson
+                    )
+                )
+            }
+    }
+
     companion object {
         private val dataJsonTypeRef = object : TypeReference<Map<String, Any?>>() {}
     }
