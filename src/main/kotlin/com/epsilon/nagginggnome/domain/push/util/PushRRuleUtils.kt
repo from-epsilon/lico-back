@@ -9,7 +9,7 @@ import java.time.zone.ZoneOffsetTransition
 object PushRRuleUtils {
     fun nextOccurrence(rrule: String, dtStart: ZonedDateTime, after: ZonedDateTime): ZonedDateTime? {
         val recur = Recur<ZonedDateTime>(rrule)
-        return recur.getNextDate(dtStart, after)?.let { resolveImaginaryTime(it) }
+        return recur.getNextDate(dtStart, after)?.let { resolveTimeAnomalies(it) }
     }
 
     fun nextOccurrence(
@@ -23,11 +23,15 @@ object PushRRuleUtils {
         return nextOccurrence(rrule, dtStartZoned, afterZoned)?.toInstant()
     }
 
-    private fun resolveImaginaryTime(dateTime: ZonedDateTime): ZonedDateTime {
+    private fun resolveTimeAnomalies(dateTime: ZonedDateTime): ZonedDateTime {
         val rules = dateTime.zone.rules
         val localDateTime = dateTime.toLocalDateTime()
         val validOffsets = rules.getValidOffsets(localDateTime)
-        if (validOffsets.isNotEmpty()) {
+        if (validOffsets.size == 2) {
+            val laterOffset = validOffsets[1]
+            return ZonedDateTime.ofLocal(localDateTime, dateTime.zone, laterOffset)
+        }
+        if (validOffsets.size == 1) {
             return dateTime
         }
 
