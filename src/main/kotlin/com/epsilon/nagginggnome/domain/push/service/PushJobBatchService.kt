@@ -1,11 +1,16 @@
 package com.epsilon.nagginggnome.domain.push.service
 
+import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
+import com.epsilon.nagginggnome.domain.message.constant.MessageType
 import com.epsilon.nagginggnome.domain.message.repository.ServerMessageRepository
 import com.epsilon.nagginggnome.domain.message.repository.model.ServerMessageCreateModel
+import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
+import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.push.constant.PushJobStatus
 import com.epsilon.nagginggnome.domain.push.repository.FcmTokenRepository
 import com.epsilon.nagginggnome.domain.push.repository.PushJobRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
+import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import com.epsilon.nagginggnome.global.constant.code.PushJobErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import com.epsilon.nagginggnome.infra.fcm.converter.FcmDataJsonConverter
@@ -20,7 +25,10 @@ class PushJobBatchService(
     private val fcmTokenRepository: FcmTokenRepository,
     private val fcmPushService: FcmPushService,
     private val serverMessageRepository: ServerMessageRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val planRepository: PlanRepository,
+    private val userSettingRepository: UserSettingRepository,
+    private val llmJobService: LlmJobService
 ) {
 
     /**
@@ -89,5 +97,21 @@ class PushJobBatchService(
                 llmMetaJson = job.llmMetaJson
             )
         )
+
+        if (job.type == MessageType.REMINDER) {
+            val planId = requireNotNull(job.planId)
+            val plan = planRepository.findByIdAndUserId(planId = planId, userId = job.userId) ?: return
+            if (!plan.remind || plan.status != PlanStatus.ACTIVE) return
+            val setting = userSettingRepository.findById(job.userId) ?: return
+            llmJobService.enqueueReminderForPlan(
+                now = Instant.now(),
+                userId = job.userId,
+                planId = plan.id,
+                timezone = setting.timezone,
+                rrule = plan.rrule,
+                dtstart = plan.dtstart,
+                leadTime = plan.leadTime
+            )
+        }
     }
 }
