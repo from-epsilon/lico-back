@@ -9,6 +9,7 @@ import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
+import com.epsilon.nagginggnome.domain.push.service.PushJobService
 import com.epsilon.nagginggnome.domain.user.repository.UserRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
@@ -26,7 +27,8 @@ class PlanService(
     private val planRepository: PlanRepository,
     private val planSnapshotRepository: PlanSnapshotRepository,
     private val userSettingRepository: UserSettingRepository,
-    private val llmJobService: LlmJobService
+    private val llmJobService: LlmJobService,
+    private val pushJobService: PushJobService
 ) {
 
     /**
@@ -87,6 +89,22 @@ class PlanService(
                 )
             )
 
+            if (newPlan.remind && newPlan.status == PlanStatus.ACTIVE) {
+                userSettingRepository.findById(
+                    userId = userId
+                )?.let { setting ->
+                    llmJobService.enqueueReminderForPlan(
+                        now = Instant.now(),
+                        userId = userId,
+                        planId = newPlan.id,
+                        timezone = setting.timezone,
+                        rrule = newPlan.rrule,
+                        dtstart = newPlan.dtstart,
+                        leadTime = newPlan.leadTime
+                    )
+                }
+            }
+
             return PlanUpsertResponse(
                 planId = newPlan.id,
                 version = newPlan.currentVersion,
@@ -126,7 +144,7 @@ class PlanService(
 
         val planPayload = req.plan
         val snapshot = req.snapshot
-        val shouldRefreshPushBatch = shouldRefreshPushBatch(
+        val shouldRefreshReminder = shouldRefreshReminder(
             plan = plan,
             payload = planPayload
         )
@@ -189,17 +207,29 @@ class PlanService(
         } catch (_: DataIntegrityViolationException) {
             // 멱등 성공 처리
         }
-        if (shouldRefreshPushBatch) {
-            userSettingRepository.findById(
-                userId = userId
-            )?.let { setting ->
-                llmJobService.enqueuePushBatchForUser(
-                    now = Instant.now(),
-                    userId = userId,
-                    timezone = setting.timezone
-                )
+
+        if (shouldRefreshReminder) {
+            pushJobService.deleteScheduledReminders(
+                planId = plan.id,
+                from = Instant.now()
+            )
+            if (plan.remind && plan.status == PlanStatus.ACTIVE) {
+                userSettingRepository.findById(
+                    userId = userId
+                )?.let { setting ->
+                    llmJobService.enqueueReminderForPlan(
+                        now = Instant.now(),
+                        userId = userId,
+                        planId = plan.id,
+                        timezone = setting.timezone,
+                        rrule = plan.rrule,
+                        dtstart = plan.dtstart,
+                        leadTime = plan.leadTime
+                    )
+                }
             }
         }
+
         return PlanUpsertResponse(
             planId = plan.id,
             version = plan.currentVersion,
@@ -220,16 +250,21 @@ class PlanService(
 
         // 플랜 삭제 멱등 처리
         plan.takeIf { !it.isDeleted() }?.softDelete()
+        pushJobService.deleteScheduledReminders(
+            planId = plan.id,
+            from = Instant.now()
+        )
     }
 
-    private fun shouldRefreshPushBatch(
+    private fun shouldRefreshReminder(
         plan: Plan,
         payload: PlanUpdateRequest.PlanPayload
     ): Boolean {
         val actionChanged = payload.action?.let { it != plan.action } ?: false
         val rruleChanged = payload.rrule?.let { it != plan.rrule } ?: false
         val leadTimeChanged = payload.leadTime?.let { it != plan.leadTime } ?: false
-        return actionChanged || rruleChanged || leadTimeChanged
+        val remindChanged = payload.remind?.let { it != plan.remind } ?: false
+        val statusChanged = payload.status?.let { it != plan.status } ?: false
+        return actionChanged || rruleChanged || leadTimeChanged || remindChanged || statusChanged
     }
 }
-
