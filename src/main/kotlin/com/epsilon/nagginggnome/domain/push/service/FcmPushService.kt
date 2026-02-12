@@ -4,7 +4,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.MessagingErrorCode
-import com.google.firebase.messaging.Notification
 import org.springframework.stereotype.Service
 
 /**
@@ -26,13 +25,16 @@ class FcmPushService(
         data: Map<String, String> = emptyMap()
     ): String {
 
+        val payload = data.toMutableMap().apply {
+            title?.let { this["title"] = it }
+            body?.let { this["body"] = it }
+        }
+
         // 메시지 구성
         val message = Message.builder()
             .setToken(token)
             .apply {
-                buildNotificationOrNull(title, body)
-                    ?.let(::setNotification)
-                data.takeIf { it.isNotEmpty() }
+                payload.takeIf { it.isNotEmpty() }
                     ?.let(::putAllData)
             }
             .build()
@@ -49,15 +51,4 @@ class FcmPushService(
         }
     }
 
-    /**
-     * title/body가 모두 null이면 Notification을 생략하기 위해 null 반환
-     */
-    private fun buildNotificationOrNull(title: String?, body: String?): Notification? {
-        if (title == null && body == null) return null
-
-        return Notification.builder().apply {
-            title?.let { setTitle(it) }
-            body?.let { setBody(it) }
-        }.build()
-    }
 }
