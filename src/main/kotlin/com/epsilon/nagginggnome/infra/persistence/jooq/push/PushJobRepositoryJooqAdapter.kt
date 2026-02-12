@@ -41,6 +41,24 @@ class PushJobRepositoryJooqAdapter(
     }
 
     /**
+     * 특정 플랜의 특정 시점 이후 READY 작업을 삭제
+     * - scheduled_at >= from
+     */
+    override fun deleteReadyByPlanFrom(
+        planId: UUID,
+        from: Instant
+    ): Int {
+        return dsl
+            .deleteFrom(PUSH_JOBS)
+            .where(
+                PUSH_JOBS.PLAN_ID.eq(planId)
+                    .and(PUSH_JOBS.STATUS.eq(PushJobStatus.READY.name))
+                    .and(PUSH_JOBS.SCHEDULED_AT.ge(from))
+            )
+            .execute()
+    }
+
+    /**
      * 작업을 대량으로 생성
      */
     override fun insertPushJob(

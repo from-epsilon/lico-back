@@ -2,15 +2,15 @@ package com.epsilon.nagginggnome.domain.llm.service
 
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobStatus
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobType
-import com.epsilon.nagginggnome.domain.llm.dto.request.PushBatchJobInput
+import com.epsilon.nagginggnome.domain.llm.dto.request.ReminderJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.UserSummaryJobInput
+import com.epsilon.nagginggnome.domain.llm.dto.response.ReminderJobOutput
 import com.epsilon.nagginggnome.domain.llm.repository.LlmJobRepository
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobApplyModel
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobCreateModel
-import com.epsilon.nagginggnome.domain.push.dto.request.PushBatchUpsertRequest
 import com.epsilon.nagginggnome.domain.push.service.PushJobService
+import com.epsilon.nagginggnome.domain.push.util.PushRRuleUtils
 import com.epsilon.nagginggnome.domain.user.config.UserProperties
-import com.epsilon.nagginggnome.domain.user.repository.PushBatchTargetRepository
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,14 +18,12 @@ import tools.jackson.databind.ObjectMapper
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
 class LlmJobService(
     private val llmJobRepository: LlmJobRepository,
     private val userSummaryRepository: UserSummaryRepository,
-    private val pushBatchTargetRepository: PushBatchTargetRepository,
     private val userProperties: UserProperties,
     private val pushJobService: PushJobService,
     private val objectMapper: ObjectMapper
@@ -41,69 +39,52 @@ class LlmJobService(
         )
         if (userIds.isEmpty()) return
 
-        val models = userIds.map { userId ->
-            LlmJobCreateModel(
-                type = LlmJobType.USER_SUMMARY,
-                status = LlmJobStatus.PENDING,
-                inputJson = objectMapper.writeValueAsString(
-                    UserSummaryJobInput(userId = userId)
-                )
-            )
-        }
-
-        llmJobRepository.insertLlmJobs(
-            models = models
-        )
-    }
-
-    fun enqueuePushBatches(now: Instant, limit: Int) {
-        val lastLoginCutoff = now.minus(Duration.ofDays(userProperties.dormancyLastLoginDays))
-        val targets = pushBatchTargetRepository.findTargetsForPushBatch(
-            lastLoginCutoff = lastLoginCutoff,
-            limit = limit
-        )
-        if (targets.isEmpty()) return
-
-        val models = targets.map { target ->
-            val zoneId = ZoneId.of(target.timezone)
-            val timeWindow = buildTimeWindow(
-                now = now,
-                zoneId = zoneId
-            )
-            LlmJobCreateModel(
-                type = LlmJobType.PUSH_BATCH,
-                status = LlmJobStatus.PENDING,
-                inputJson = objectMapper.writeValueAsString(
-                    PushBatchJobInput(
-                        userId = target.userId,
-                        timeWindow = timeWindow
+        userIds.forEach { userId ->
+            llmJobRepository.insertLlmJob(
+                model = LlmJobCreateModel(
+                    type = LlmJobType.USER_SUMMARY,
+                    status = LlmJobStatus.PENDING,
+                    inputJson = objectMapper.writeValueAsString(
+                        UserSummaryJobInput(userId = userId)
                     )
                 )
             )
         }
-
-        llmJobRepository.insertLlmJobs(
-            models = models
-        )
     }
 
-    fun enqueuePushBatchForUser(now: Instant, userId: UUID, timezone: String) {
-        val timeWindow = buildTimeWindow(
-            now = now,
-            zoneId = ZoneId.of(timezone)
+    @Transactional
+    fun enqueueReminderForPlan(
+        now: Instant,
+        userId: UUID,
+        planId: UUID,
+        timezone: String,
+        rrule: String,
+        dtstart: Instant,
+        leadTime: Int?
+    ) {
+        pushJobService.deleteScheduledReminders(
+            planId = planId,
+            from = now
         )
-        val model = LlmJobCreateModel(
-            type = LlmJobType.PUSH_BATCH,
-            status = LlmJobStatus.PENDING,
-            inputJson = objectMapper.writeValueAsString(
-                PushBatchJobInput(
-                    userId = userId,
-                    timeWindow = timeWindow
+        val scheduledAt = buildNextReminderAt(
+            now = now,
+            rrule = rrule,
+            dtstart = dtstart,
+            timezone = timezone,
+            leadTime = leadTime
+        ) ?: return
+        llmJobRepository.insertLlmJob(
+            model = LlmJobCreateModel(
+                type = LlmJobType.REMINDER,
+                status = LlmJobStatus.PENDING,
+                inputJson = objectMapper.writeValueAsString(
+                    ReminderJobInput(
+                        userId = userId,
+                        planId = planId,
+                        scheduledAt = scheduledAt
+                    )
                 )
             )
-        )
-        llmJobRepository.insertLlmJobs(
-            models = listOf(model)
         )
     }
 
@@ -151,24 +132,44 @@ class LlmJobService(
                 )
             }
 
-            LlmJobType.PUSH_BATCH -> {
-                val output = objectMapper.readValue(job.outputJson, PushBatchUpsertRequest::class.java)
-                pushJobService.pushBatchUpsert(
-                    userId = output.userId,
-                    req = output
+            LlmJobType.REMINDER -> {
+                val output = objectMapper.readValue(job.outputJson, ReminderJobOutput::class.java)
+                pushJobService.insertReminder(
+                    output = output
                 )
+            }
+
+            LlmJobType.COMPACTION -> {
+                error("COMPACTION job apply is not implemented yet.")
+            }
+
+            LlmJobType.ADDITIONAL -> {
+                error("ADDITIONAL job apply is not implemented yet.")
             }
         }
     }
 
-    private fun buildTimeWindow(now: Instant, zoneId: ZoneId): PushBatchJobInput.TimeWindow {
-        val zonedNow = ZonedDateTime.ofInstant(now, zoneId)
-        val start = zonedNow.toInstant()
-        val end = zonedNow.plusDays(3).minusSeconds(1).toInstant()
-        return PushBatchJobInput.TimeWindow(
-            start = start,
-            end = end
-        )
+    private fun buildNextReminderAt(
+        now: Instant,
+        rrule: String,
+        dtstart: Instant,
+        timezone: String,
+        leadTime: Int?
+    ): Instant? {
+        val leadTimeMinutes = leadTime ?: 0
+        val zoneId = ZoneId.of(timezone)
+        val after = now.plus(Duration.ofMinutes(leadTimeMinutes.toLong()))
+        val occurrence = PushRRuleUtils.nextOccurrence(
+            rrule = rrule,
+            dtStart = dtstart,
+            zoneId = zoneId,
+            after = after
+        ) ?: return null
+        val scheduledAt = occurrence.minus(Duration.ofMinutes(leadTimeMinutes.toLong()))
+        if (!scheduledAt.isAfter(now)) {
+            return null
+        }
+        return scheduledAt
     }
 
 }

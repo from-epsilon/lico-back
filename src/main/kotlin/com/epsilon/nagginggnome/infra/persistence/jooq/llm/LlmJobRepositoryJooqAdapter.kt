@@ -20,23 +20,14 @@ class LlmJobRepositoryJooqAdapter(
 ) : LlmJobRepository {
 
     /**
-     * 작업을 대량으로 생성
+     * 작업을 단건 생성
      */
-    override fun insertLlmJobs(models: List<LlmJobCreateModel>): Int {
-        models.takeIf { it.isNotEmpty() } ?: return 0
-
-        val chunkSize = 500
-
-        return models.chunked(chunkSize).sumOf { chunk ->
-            val records = chunk.map { model ->
-                dsl.newRecord(LLM_JOBS).apply {
-                    set(LLM_JOBS.TYPE, model.type.name)
-                    set(LLM_JOBS.STATUS, model.status.name)
-                    set(LLM_JOBS.INPUT_JSON, JSONB.valueOf(model.inputJson))
-                }
-            }
-            dsl.batchInsert(records).execute().sum()
-        }
+    override fun insertLlmJob(model: LlmJobCreateModel): Int {
+        return dsl.insertInto(LLM_JOBS)
+            .set(LLM_JOBS.TYPE, model.type.name)
+            .set(LLM_JOBS.STATUS, model.status.name)
+            .set(LLM_JOBS.INPUT_JSON, JSONB.valueOf(model.inputJson))
+            .execute()
     }
 
     /**
