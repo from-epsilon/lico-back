@@ -18,6 +18,12 @@ interface PushJobRepository {
     fun deletePushJobByUserAndRange(userId: UUID, from: Instant, to: Instant): Int
 
     /**
+     * 특정 플랜의 특정 시점 이후 READY 작업을 삭제
+     * - scheduled_at >= from
+     */
+    fun deleteReadyByPlanFrom(planId: UUID, from: Instant): Int
+
+    /**
      * 작업을 대량으로 생성
      */
     fun insertPushJob(userId: UUID, models: List<PushJobCreateModel>): Int

@@ -8,6 +8,7 @@ import com.epsilon.nagginggnome.domain.push.repository.model.PushJobCreateModel
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
+import java.time.Instant
 import java.util.UUID
 
 @Service
@@ -17,15 +18,15 @@ class PushJobService(
 ) {
 
     /**
-     * LLM에서 생성한 푸시 배치 반영
+     * 특정 플랜의 예정된 알림 삭제 (발송되지 않은 것만)
      */
     @Transactional
-    fun pushBatchUpsert(userId: UUID, req: PushBatchUpsertRequest) {
-        pushJobRepository.deletePushJobByUserAndRange(
-            userId = userId,
-            from = req.timeWindow.start,
-            to = req.timeWindow.end
+    fun deleteScheduledReminders(planId: UUID, from: Instant): Int {
+        return pushJobRepository.deleteReadyByPlanFrom(
+            planId = planId,
+            from = from
         )
+    }
 
         val createModels = req.pushes.map { message ->
             PushJobCreateModel(
