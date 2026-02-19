@@ -5,13 +5,13 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * USER_SUMMARY 작업 input_json
+ * COMPACTION 작업 input_json
  */
-data class UserSummaryJobInput(
-    val userId: UUID,
-    val flushTarget: List<FlushTargetItem>
+data class CompactionJobInput(
+    val planId: UUID,
+    val compactionTarget: List<CompactionTargetItem>
 ) {
-    data class FlushTargetItem(
+    data class CompactionTargetItem(
         val type: LlmJobTargetType,
         val timestamp: Instant,
         val content: Any
