@@ -1,7 +1,10 @@
 package com.epsilon.nagginggnome.domain.user.entity
 
 import jakarta.persistence.Column
+import com.epsilon.nagginggnome.domain.user.constant.UserTier
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -23,7 +26,8 @@ class UserSetting(
     verbosityPerDay: Double,
     sleepTime: Int,
     wakeTime: Int,
-    timezone: String
+    timezone: String,
+    tier: UserTier = UserTier.BASIC
 ) {
 
     /**
@@ -82,6 +86,14 @@ class UserSetting(
     var timezone: String = timezone
         private set
 
+    /**
+     * 등급
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tier", nullable = false)
+    var tier: UserTier = tier
+        private set
+
 
     fun patch(
         nickname: String? = null,
@@ -89,11 +101,13 @@ class UserSetting(
         sleepTime: Int? = null,
         wakeTime: Int? = null,
         timezone: String? = null,
+        tier: UserTier? = null,
     ) {
         nickname?.let { this.nickname = it }
         verbosityPerDay?.let { this.verbosityPerDay = it }
         sleepTime?.let { this.sleepTime = it }
         wakeTime?.let { this.wakeTime = it }
         timezone?.let { this.timezone = it }
+        tier?.let { this.tier = it }
     }
 }

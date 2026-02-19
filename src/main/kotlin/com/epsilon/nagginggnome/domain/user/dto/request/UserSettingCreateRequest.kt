@@ -1,5 +1,7 @@
 package com.epsilon.nagginggnome.domain.user.dto.request
 
+import com.epsilon.nagginggnome.domain.user.constant.UserTier
+
 /**
  * 유저 설정 정보 생성 요청 DTO
  */
@@ -8,5 +10,6 @@ data class UserSettingCreateRequest(
     val verbosityPerDay: Double,
     val sleepTime: Int,
     val wakeTime: Int,
-    val timezone: String
+    val timezone: String,
+    val tier: UserTier = UserTier.BASIC
 )
