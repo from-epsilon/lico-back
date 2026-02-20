@@ -4,4 +4,5 @@ import java.util.UUID
 
 interface PlanLogRepository {
     fun insertIfAbsent(planId: UUID, userId: UUID): Int
+    fun appendRecentLog(planId: UUID, logJson: String): Int
 }
