@@ -31,6 +31,7 @@ class PlanLogRepositoryJooqAdapter(
         )
         return dsl.update(PLAN_LOGS)
             .set(PLAN_LOGS.RECENT_LOGS, appended)
+            .set(PLAN_LOGS.UPDATED_AT, DSL.currentTimestamp())
             .where(PLAN_LOGS.PLAN_ID.eq(planId))
             .execute()
     }
@@ -59,6 +60,7 @@ class PlanLogRepositoryJooqAdapter(
         )
         return dsl.update(PLAN_LOGS)
             .set(PLAN_LOGS.RECENT_LOGS, trimmed)
+            .set(PLAN_LOGS.UPDATED_AT, DSL.currentTimestamp())
             .where(PLAN_LOGS.PLAN_ID.eq(planId))
             .execute()
     }
@@ -66,6 +68,7 @@ class PlanLogRepositoryJooqAdapter(
     override fun updateCompaction(planId: UUID, compaction: String): Int {
         return dsl.update(PLAN_LOGS)
             .set(PLAN_LOGS.COMPACTION, compaction)
+            .set(PLAN_LOGS.UPDATED_AT, DSL.currentTimestamp())
             .where(PLAN_LOGS.PLAN_ID.eq(planId))
             .execute()
     }

@@ -59,11 +59,6 @@ class LlmJobService(
                 )
             )
         )
-
-        planLogRepository.removeOldestRecentLogs(
-            planId = planId,
-            count = 30
-        )
     }
 
     fun enqueueUserSummaries(now: Instant, limit: Int) {
@@ -184,6 +179,10 @@ class LlmJobService(
                 planLogRepository.updateCompaction(
                     planId = output.request.planId,
                     compaction = output.compaction
+                )
+                planLogRepository.removeOldestRecentLogs(
+                    planId = output.request.planId,
+                    count = 30
                 )
             }
 
