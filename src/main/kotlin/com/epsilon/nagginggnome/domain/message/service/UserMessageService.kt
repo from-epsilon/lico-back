@@ -1,10 +1,12 @@
 package com.epsilon.nagginggnome.domain.message.service
 
+import com.epsilon.nagginggnome.domain.llm.constant.LlmJobTargetType
 import com.epsilon.nagginggnome.domain.message.dto.request.UserMessageCreateRequest
 import com.epsilon.nagginggnome.domain.message.dto.request.UserMessageUpdateRequest
 import com.epsilon.nagginggnome.domain.message.repository.ServerMessageRepository
 import com.epsilon.nagginggnome.domain.message.repository.UserMessageRepository
 import com.epsilon.nagginggnome.domain.message.repository.model.UserMessageCreateModel
+import com.epsilon.nagginggnome.domain.plan.repository.PlanLogRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.global.constant.code.CommonErrorCode
 import com.epsilon.nagginggnome.global.constant.code.MessageErrorCode
@@ -12,13 +14,16 @@ import com.epsilon.nagginggnome.global.constant.code.PlanErrorCode
 import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 @Service
 class UserMessageService(
     private val planRepository: PlanRepository,
     private val userMessageRepository: UserMessageRepository,
-    private val serverMessageRepository: ServerMessageRepository
+    private val serverMessageRepository: ServerMessageRepository,
+    private val planLogRepository: PlanLogRepository,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -67,6 +72,28 @@ class UserMessageService(
                 sentAt = req.sentAt
             )
         )
+
+        serverMessageRepository.findByIdAndUserIdAndPlanId(
+            id = req.serverMessageId,
+            userId = userId,
+            planId = planId
+        )?.let { serverMessage ->
+            val log = mapOf(
+                "type" to LlmJobTargetType.USER_MESSAGE.name,
+                "timestamp" to req.sentAt,
+                "content" to mapOf(
+                    "reply_to" to mapOf(
+                        "title" to serverMessage.title,
+                        "body" to serverMessage.body
+                    ),
+                    "body" to req.body
+                )
+            )
+            planLogRepository.appendRecentLog(
+                planId = planId,
+                logJson = objectMapper.writeValueAsString(log)
+            )
+        }
     }
 
     @Transactional

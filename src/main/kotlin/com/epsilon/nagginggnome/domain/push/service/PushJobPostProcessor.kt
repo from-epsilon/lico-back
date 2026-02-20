@@ -1,23 +1,28 @@
 package com.epsilon.nagginggnome.domain.push.service
 
+import com.epsilon.nagginggnome.domain.llm.constant.LlmJobTargetType
 import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import com.epsilon.nagginggnome.domain.message.constant.MessageType
 import com.epsilon.nagginggnome.domain.message.repository.ServerMessageRepository
 import com.epsilon.nagginggnome.domain.message.repository.model.ServerMessageCreateModel
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
+import com.epsilon.nagginggnome.domain.plan.repository.PlanLogRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.push.repository.model.PushJobProcessingModel
 import com.epsilon.nagginggnome.domain.user.repository.UserSettingRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 @Service
 class PushJobPostProcessor(
     private val serverMessageRepository: ServerMessageRepository,
     private val planRepository: PlanRepository,
+    private val planLogRepository: PlanLogRepository,
     private val userSettingRepository: UserSettingRepository,
-    private val llmJobService: LlmJobService
+    private val llmJobService: LlmJobService,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -33,6 +38,21 @@ class PushJobPostProcessor(
                 llmMetaJson = job.llmMetaJson
             )
         )
+
+        job.planId?.let { planId ->
+            val log = mapOf(
+                "type" to LlmJobTargetType.GNOME_MESSAGE.name,
+                "timestamp" to Instant.now(),
+                "content" to mapOf(
+                    "title" to requireNotNull(job.title),
+                    "body" to requireNotNull(job.body)
+                )
+            )
+            planLogRepository.appendRecentLog(
+                planId = planId,
+                logJson = objectMapper.writeValueAsString(log)
+            )
+        }
 
         if (job.type != MessageType.REMINDER) return
 

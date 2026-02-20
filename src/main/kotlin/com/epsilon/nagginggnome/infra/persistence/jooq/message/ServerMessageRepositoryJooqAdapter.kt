@@ -89,6 +89,40 @@ class ServerMessageRepositoryJooqAdapter(
             }
     }
 
+    override fun findByIdAndUserIdAndPlanId(
+        id: Long,
+        userId: UUID,
+        planId: UUID
+    ): ServerMessageQueryModel? {
+        return dsl.select(
+            SERVER_MESSAGES.ID,
+            SERVER_MESSAGES.USER_ID,
+            SERVER_MESSAGES.PLAN_ID,
+            SERVER_MESSAGES.TYPE,
+            SERVER_MESSAGES.TITLE,
+            SERVER_MESSAGES.BODY,
+            SERVER_MESSAGES.DATA_JSON,
+            SERVER_MESSAGES.CREATED_AT
+        )
+            .from(SERVER_MESSAGES)
+            .where(SERVER_MESSAGES.ID.eq(id))
+            .and(SERVER_MESSAGES.USER_ID.eq(userId))
+            .and(SERVER_MESSAGES.PLAN_ID.eq(planId))
+            .fetchOne { rec ->
+                val type = MessageType.from(rec.get(SERVER_MESSAGES.TYPE)) ?: MessageType.ADDITIONAL
+                ServerMessageQueryModel(
+                    id = rec.get(SERVER_MESSAGES.ID) ?: 0L,
+                    userId = rec.get(SERVER_MESSAGES.USER_ID)!!,
+                    planId = rec.get(SERVER_MESSAGES.PLAN_ID),
+                    type = type,
+                    title = rec.get(SERVER_MESSAGES.TITLE) ?: "",
+                    body = rec.get(SERVER_MESSAGES.BODY) ?: "",
+                    dataJson = rec.get(SERVER_MESSAGES.DATA_JSON)?.data(),
+                    createdAt = rec.get(SERVER_MESSAGES.CREATED_AT)!!
+                )
+            }
+    }
+
     override fun existsByIdAndUserIdAndPlanId(id: Long, userId: UUID, planId: UUID): Boolean {
         return dsl.fetchExists(
             dsl.selectOne()
