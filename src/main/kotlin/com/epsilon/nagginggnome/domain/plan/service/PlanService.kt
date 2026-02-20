@@ -365,5 +365,8 @@ class PlanService(
             planId = planId,
             logJson = objectMapper.writeValueAsString(log)
         )
+        llmJobService.enqueueCompactionIfNeeded(
+            planId = planId
+        )
     }
 }

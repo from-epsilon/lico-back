@@ -8,8 +8,10 @@ import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobCreateModel
 import com.epsilon.nagginggnome.generated.jooq.tables.references.LLM_JOBS
 import org.jooq.DSLContext
 import org.jooq.JSONB
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import java.time.Instant
+import java.util.UUID
 
 /**
  * LlmJobRepository의 jOOQ 기반 구현체
@@ -78,6 +80,22 @@ class LlmJobRepositoryJooqAdapter(
                     outputJson = requireNotNull(rec.get(LLM_JOBS.OUTPUT_JSON)).data()
                 )
             }
+    }
+
+    override fun existsPendingCompaction(planId: UUID): Boolean {
+        val planIdField = DSL.field("({0} ->> 'plan_id')", String::class.java, LLM_JOBS.INPUT_JSON)
+        return dsl.fetchExists(
+            dsl.selectOne()
+                .from(LLM_JOBS)
+                .where(LLM_JOBS.TYPE.eq(LlmJobType.COMPACTION.name))
+                .and(
+                    LLM_JOBS.STATUS.`in`(
+                        LlmJobStatus.PENDING.name,
+                        LlmJobStatus.PROCESSING.name
+                    )
+                )
+                .and(planIdField.eq(planId.toString()))
+        )
     }
 
     /**

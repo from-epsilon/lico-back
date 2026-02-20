@@ -2,14 +2,17 @@ package com.epsilon.nagginggnome.domain.llm.service
 
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobStatus
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobType
+import com.epsilon.nagginggnome.domain.llm.dto.request.CompactionJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.ReminderJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.UserSummaryJobInput
+import com.epsilon.nagginggnome.domain.llm.dto.response.CompactionJobOutput
 import com.epsilon.nagginggnome.domain.llm.dto.response.ReminderJobOutput
 import com.epsilon.nagginggnome.domain.llm.repository.LlmJobRepository
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobApplyModel
 import com.epsilon.nagginggnome.domain.llm.repository.model.LlmJobCreateModel
 import com.epsilon.nagginggnome.domain.push.service.PushJobService
 import com.epsilon.nagginggnome.domain.push.util.PushRRuleUtils
+import com.epsilon.nagginggnome.domain.plan.repository.PlanLogRepository
 import com.epsilon.nagginggnome.domain.user.config.UserProperties
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
 import org.springframework.stereotype.Service
@@ -24,10 +27,44 @@ import java.util.UUID
 class LlmJobService(
     private val llmJobRepository: LlmJobRepository,
     private val userSummaryRepository: UserSummaryRepository,
+    private val planLogRepository: PlanLogRepository,
     private val userProperties: UserProperties,
     private val pushJobService: PushJobService,
     private val objectMapper: ObjectMapper
 ) {
+
+    fun enqueueCompactionIfNeeded(planId: UUID) {
+        if (llmJobRepository.existsPendingCompaction(planId)) {
+            return
+        }
+
+        val logs = planLogRepository.findRecentLogs(planId)
+        if (logs.size < 50) {
+            return
+        }
+
+        val compactionTarget = logs.take(30).map { logJson ->
+            objectMapper.readValue(logJson, CompactionJobInput.CompactionTargetItem::class.java)
+        }
+
+        llmJobRepository.insertLlmJob(
+            model = LlmJobCreateModel(
+                type = LlmJobType.COMPACTION,
+                status = LlmJobStatus.PENDING,
+                inputJson = objectMapper.writeValueAsString(
+                    CompactionJobInput(
+                        planId = planId,
+                        compactionTarget = compactionTarget
+                    )
+                )
+            )
+        )
+
+        planLogRepository.removeOldestRecentLogs(
+            planId = planId,
+            count = 30
+        )
+    }
 
     fun enqueueUserSummaries(now: Instant, limit: Int) {
         val summaryCutoff = now.minus(Duration.ofDays(14))
@@ -45,7 +82,10 @@ class LlmJobService(
                     type = LlmJobType.USER_SUMMARY,
                     status = LlmJobStatus.PENDING,
                     inputJson = objectMapper.writeValueAsString(
-                        UserSummaryJobInput(userId = userId)
+                        UserSummaryJobInput(
+                            userId = userId,
+                            flushTarget = emptyList()
+                        )
                     )
                 )
             )
@@ -140,7 +180,11 @@ class LlmJobService(
             }
 
             LlmJobType.COMPACTION -> {
-                error("COMPACTION job apply is not implemented yet.")
+                val output = objectMapper.readValue(job.outputJson, CompactionJobOutput::class.java)
+                planLogRepository.updateCompaction(
+                    planId = output.request.planId,
+                    compaction = output.compaction
+                )
             }
 
             LlmJobType.ADDITIONAL -> {

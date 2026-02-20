@@ -52,6 +52,9 @@ class PushJobPostProcessor(
                 planId = planId,
                 logJson = objectMapper.writeValueAsString(log)
             )
+            llmJobService.enqueueCompactionIfNeeded(
+                planId = planId
+            )
         }
 
         if (job.type != MessageType.REMINDER) return

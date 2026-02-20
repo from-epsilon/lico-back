@@ -1,6 +1,7 @@
 package com.epsilon.nagginggnome.domain.message.service
 
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobTargetType
+import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
 import com.epsilon.nagginggnome.domain.message.dto.request.UserMessageCreateRequest
 import com.epsilon.nagginggnome.domain.message.dto.request.UserMessageUpdateRequest
 import com.epsilon.nagginggnome.domain.message.repository.ServerMessageRepository
@@ -23,7 +24,8 @@ class UserMessageService(
     private val userMessageRepository: UserMessageRepository,
     private val serverMessageRepository: ServerMessageRepository,
     private val planLogRepository: PlanLogRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val llmJobService: LlmJobService
 ) {
 
     @Transactional
@@ -92,6 +94,9 @@ class UserMessageService(
             planLogRepository.appendRecentLog(
                 planId = planId,
                 logJson = objectMapper.writeValueAsString(log)
+            )
+            llmJobService.enqueueCompactionIfNeeded(
+                planId = planId
             )
         }
     }

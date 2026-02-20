@@ -34,4 +34,39 @@ class PlanLogRepositoryJooqAdapter(
             .where(PLAN_LOGS.PLAN_ID.eq(planId))
             .execute()
     }
+
+    override fun findRecentLogs(planId: UUID): List<String> {
+        return dsl
+            .select(PLAN_LOGS.RECENT_LOGS)
+            .from(PLAN_LOGS)
+            .where(PLAN_LOGS.PLAN_ID.eq(planId))
+            .fetchOne { rec ->
+                rec.get(PLAN_LOGS.RECENT_LOGS)
+                    ?.map { it.data() }
+                    ?: emptyList()
+            } ?: emptyList()
+    }
+
+    override fun removeOldestRecentLogs(planId: UUID, count: Int): Int {
+        if (count <= 0) {
+            return 0
+        }
+        val trimmed = DSL.field(
+            "CASE WHEN array_length({0}, 1) <= {1} THEN '{{}}'::jsonb[] ELSE {0}[{1}+1:array_length({0}, 1)] END",
+            PLAN_LOGS.RECENT_LOGS.dataType,
+            PLAN_LOGS.RECENT_LOGS,
+            DSL.inline(count)
+        )
+        return dsl.update(PLAN_LOGS)
+            .set(PLAN_LOGS.RECENT_LOGS, trimmed)
+            .where(PLAN_LOGS.PLAN_ID.eq(planId))
+            .execute()
+    }
+
+    override fun updateCompaction(planId: UUID, compaction: String): Int {
+        return dsl.update(PLAN_LOGS)
+            .set(PLAN_LOGS.COMPACTION, compaction)
+            .where(PLAN_LOGS.PLAN_ID.eq(planId))
+            .execute()
+    }
 }
