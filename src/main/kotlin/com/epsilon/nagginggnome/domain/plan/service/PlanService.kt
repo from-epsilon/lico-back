@@ -7,6 +7,7 @@ import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.response.PlanUpsertResponse
 import com.epsilon.nagginggnome.domain.plan.entity.Plan
 import com.epsilon.nagginggnome.domain.plan.entity.PlanSnapshot
+import com.epsilon.nagginggnome.domain.plan.repository.PlanLogRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanRepository
 import com.epsilon.nagginggnome.domain.plan.repository.PlanSnapshotRepository
 import com.epsilon.nagginggnome.domain.push.service.PushJobService
@@ -26,6 +27,7 @@ class PlanService(
     private val userRepository: UserRepository,
     private val planRepository: PlanRepository,
     private val planSnapshotRepository: PlanSnapshotRepository,
+    private val planLogRepository: PlanLogRepository,
     private val userSettingRepository: UserSettingRepository,
     private val llmJobService: LlmJobService,
     private val pushJobService: PushJobService
@@ -87,6 +89,12 @@ class PlanService(
                     dataJson = snapshot.dataJson,
                     snapshotAt = snapshot.snapshotAt
                 )
+            )
+
+            // 플랜 로그 초기 row 생성
+            planLogRepository.insertIfAbsent(
+                planId = newPlan.id,
+                userId = userId
             )
 
             if (newPlan.remind && newPlan.status == PlanStatus.ACTIVE) {
