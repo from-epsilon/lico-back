@@ -1,6 +1,7 @@
 package com.epsilon.nagginggnome.domain.plan.service
 
 import com.epsilon.nagginggnome.domain.llm.service.LlmJobService
+import com.epsilon.nagginggnome.domain.llm.constant.LlmJobTargetType
 import com.epsilon.nagginggnome.domain.plan.constant.PlanStatus
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanCreateRequest
 import com.epsilon.nagginggnome.domain.plan.dto.request.PlanUpdateRequest
@@ -19,6 +20,7 @@ import com.epsilon.nagginggnome.global.exception.ApiException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -30,7 +32,8 @@ class PlanService(
     private val planLogRepository: PlanLogRepository,
     private val userSettingRepository: UserSettingRepository,
     private val llmJobService: LlmJobService,
-    private val pushJobService: PushJobService
+    private val pushJobService: PushJobService,
+    private val objectMapper: ObjectMapper
 ) {
 
     /**
@@ -152,6 +155,16 @@ class PlanService(
 
         val planPayload = req.plan
         val snapshot = req.snapshot
+        val now = Instant.now()
+        val beforeAction = plan.action
+        val beforePurpose = plan.purpose
+        val beforeMotive = plan.motive
+        val beforeMemo = plan.memo
+        val beforeDtstart = plan.dtstart
+        val beforeRrule = plan.rrule
+        val beforeRemind = plan.remind
+        val beforeLeadTime = plan.leadTime
+        val beforeStatus = plan.status
         val shouldRefreshReminder = shouldRefreshReminder(
             plan = plan,
             payload = planPayload
@@ -238,6 +251,22 @@ class PlanService(
             }
         }
 
+        appendUpdateLog(
+            planId = plan.id,
+            userId = userId,
+            now = now,
+            beforeAction = beforeAction,
+            beforePurpose = beforePurpose,
+            beforeMotive = beforeMotive,
+            beforeMemo = beforeMemo,
+            beforeDtstart = beforeDtstart,
+            beforeRrule = beforeRrule,
+            beforeRemind = beforeRemind,
+            beforeLeadTime = beforeLeadTime,
+            beforeStatus = beforeStatus,
+            payload = planPayload
+        )
+
         return PlanUpsertResponse(
             planId = plan.id,
             version = plan.currentVersion,
@@ -274,5 +303,67 @@ class PlanService(
         val remindChanged = payload.remind?.let { it != plan.remind } ?: false
         val statusChanged = payload.status?.let { it != plan.status } ?: false
         return actionChanged || rruleChanged || leadTimeChanged || remindChanged || statusChanged
+    }
+
+    private fun appendUpdateLog(
+        planId: UUID,
+        userId: UUID,
+        now: Instant,
+        beforeAction: String,
+        beforePurpose: String?,
+        beforeMotive: String?,
+        beforeMemo: String?,
+        beforeDtstart: Instant,
+        beforeRrule: String,
+        beforeRemind: Boolean,
+        beforeLeadTime: Int?,
+        beforeStatus: PlanStatus,
+        payload: PlanUpdateRequest.PlanPayload
+    ) {
+        val fields = buildList<Map<String, Any?>> {
+            payload.action?.takeIf { it != beforeAction }?.let {
+                add(mapOf("field" to "action", "before" to beforeAction, "after" to it))
+            }
+            payload.purpose?.takeIf { it != beforePurpose }?.let {
+                add(mapOf("field" to "purpose", "before" to beforePurpose, "after" to it))
+            }
+            payload.motive?.takeIf { it != beforeMotive }?.let {
+                add(mapOf("field" to "motive", "before" to beforeMotive, "after" to it))
+            }
+            payload.memo?.takeIf { it != beforeMemo }?.let {
+                add(mapOf("field" to "memo", "before" to beforeMemo, "after" to it))
+            }
+            payload.dtstart?.takeIf { it != beforeDtstart }?.let {
+                add(mapOf("field" to "dtstart", "before" to beforeDtstart, "after" to it))
+            }
+            payload.rrule?.takeIf { it != beforeRrule }?.let {
+                add(mapOf("field" to "rrule", "before" to beforeRrule, "after" to it))
+            }
+            payload.remind?.takeIf { it != beforeRemind }?.let {
+                add(mapOf("field" to "remind", "before" to beforeRemind, "after" to it))
+            }
+            payload.leadTime?.takeIf { it != beforeLeadTime }?.let {
+                add(mapOf("field" to "lead_time", "before" to beforeLeadTime, "after" to it))
+            }
+            payload.status?.takeIf { it != beforeStatus }?.let {
+                add(mapOf("field" to "status", "before" to beforeStatus.name, "after" to it.name))
+            }
+        }
+
+        if (fields.isEmpty()) {
+            return
+        }
+
+        val log = mapOf(
+            "type" to LlmJobTargetType.UPDATE.name,
+            "timestamp" to now,
+            "content" to mapOf(
+                "fields" to fields
+            )
+        )
+        planLogRepository.appendRecentLog(
+            planId = planId,
+            logJson = objectMapper.writeValueAsString(log)
+        )
     }
 }
