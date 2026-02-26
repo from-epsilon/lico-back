@@ -2,6 +2,7 @@ package com.epsilon.nagginggnome.domain.llm.service
 
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobStatus
 import com.epsilon.nagginggnome.domain.llm.constant.LlmJobType
+import com.epsilon.nagginggnome.domain.llm.dto.request.AdditionalJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.CompactionJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.ReminderJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.UserSummaryJobInput
@@ -16,6 +17,7 @@ import com.epsilon.nagginggnome.domain.push.util.PushRRuleUtils
 import com.epsilon.nagginggnome.domain.plan.repository.PlanLogRepository
 import com.epsilon.nagginggnome.domain.user.config.UserProperties
 import com.epsilon.nagginggnome.domain.user.repository.UserSummaryRepository
+import com.epsilon.nagginggnome.domain.user.repository.UserTargetRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.databind.ObjectMapper
@@ -28,11 +30,41 @@ import java.util.UUID
 class LlmJobService(
     private val llmJobRepository: LlmJobRepository,
     private val userSummaryRepository: UserSummaryRepository,
+    private val userTargetRepository: UserTargetRepository,
     private val planLogRepository: PlanLogRepository,
     private val userProperties: UserProperties,
     private val pushJobService: PushJobService,
     private val objectMapper: ObjectMapper
 ) {
+
+    fun enqueueAdditionalJobs(now: Instant, limit: Int) {
+        val lastLoginCutoff = now.minus(Duration.ofDays(userProperties.dormancyLastLoginDays))
+        val userIds = userTargetRepository.findAdditionalTargetUserIds(
+            lastLoginCutoff = lastLoginCutoff,
+            limit = limit
+        )
+        if (userIds.isEmpty()) return
+
+        val timeWindow = AdditionalJobInput.TimeWindow(
+            start = now,
+            end = now.plus(Duration.ofDays(1))
+        )
+
+        userIds.forEach { userId ->
+            llmJobRepository.insertLlmJob(
+                model = LlmJobCreateModel(
+                    type = LlmJobType.ADDITIONAL,
+                    status = LlmJobStatus.PENDING,
+                    inputJson = objectMapper.writeValueAsString(
+                        AdditionalJobInput(
+                            userId = userId,
+                            timeWindow = timeWindow
+                        )
+                    )
+                )
+            )
+        }
+    }
 
     fun enqueueCompactionIfNeeded(planId: UUID) {
         if (llmJobRepository.existsPendingCompaction(planId)) {

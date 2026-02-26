@@ -35,4 +35,23 @@ class LlmJobEnqueueScheduler(
             limit = 500
         )
     }
+
+    /**
+     * 매일 아침 ADDITIONAL 작업 enqueue
+     */
+    @SchedulerLock(
+        name = "llmJobAdditionalEnqueueScheduler",
+        lockAtMostFor = "PT10M",
+        lockAtLeastFor = "PT5S"
+    )
+    @Scheduled(
+        cron = "0 0 9 * * *",
+        zone = "Asia/Seoul"
+    )
+    fun enqueueAdditionalEveryMorning() {
+        llmJobService.enqueueAdditionalJobs(
+            now = Instant.now(),
+            limit = 500
+        )
+    }
 }
