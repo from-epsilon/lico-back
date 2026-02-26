@@ -5,6 +5,7 @@ import com.epsilon.nagginggnome.domain.llm.constant.LlmJobType
 import com.epsilon.nagginggnome.domain.llm.dto.request.CompactionJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.ReminderJobInput
 import com.epsilon.nagginggnome.domain.llm.dto.request.UserSummaryJobInput
+import com.epsilon.nagginggnome.domain.llm.dto.response.AdditionalJobOutput
 import com.epsilon.nagginggnome.domain.llm.dto.response.CompactionJobOutput
 import com.epsilon.nagginggnome.domain.llm.dto.response.ReminderJobOutput
 import com.epsilon.nagginggnome.domain.llm.repository.LlmJobRepository
@@ -187,7 +188,8 @@ class LlmJobService(
             }
 
             LlmJobType.ADDITIONAL -> {
-                error("ADDITIONAL job apply is not implemented yet.")
+                val output = objectMapper.readValue(job.outputJson, AdditionalJobOutput::class.java)
+                pushJobService.insertAdditional(output)
             }
         }
     }
